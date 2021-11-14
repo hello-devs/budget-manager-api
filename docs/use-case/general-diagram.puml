@@ -1,0 +1,42 @@
+@startuml
+!theme materia
+skinparam actorStyle awesome
+skinparam roundcorner 15
+skinparam usecase{
+    BackgroundColor white
+    FontColor black
+}
+skinparam rectangle{
+    BackgroundColor WhiteSmoke
+}
+left to right direction
+'----------------------------------------------
+
+actor :Visitor: as V
+actor :Budget Manager: as BM
+
+V -> (can create account)
+V -> (can connect to his account)
+V -> (can retrieve password)
+
+V --> BM : when authenticated
+
+
+rectangle BUDGET{
+    BM --> (can see a list of his budgets)
+    BM --> (create Budget)
+    BM --> (can see current budgets balances)
+    BM --> (can see the expected budgets balances)
+    BM --> (can delete Budget)
+    BM --> (can see a list of operations relative to Budget)
+}
+rectangle OPERATION{
+ BM --> (create Operation)
+ BM --> (can add expenses to the budget)
+ BM --> (can add money to the budget )
+ BM --> (can create recurring operation list)
+ BM --> (can add Operation to Recurring operations List)
+}
+
+
+@enduml
