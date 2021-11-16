@@ -37,7 +37,6 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^1.1",
-        "squizlabs/php_codesniffer": "^3.6",
         "symfony/debug-bundle": "5.3.*",
         "symfony/phpunit-bridge": "^5.3",
         "symfony/stopwatch": "5.3.*",
@@ -75,6 +74,18 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "install-php-cs-fixer-in-tools-dir": [
+            "mkdir --parent tools/php-cs-fixer",
+            "composer require --working-dir=tools/php-cs-fixer friendsofphp/php-cs-fixer --dev"
+        ],
+        "cs-fix": [
+            "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src",
+            "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix tests"
+        ],
+        "check-quality": [
+            "@composer cs-fix",
+            "vendor/bin/phpstan"
         ]
     },
     "conflict": {
