@@ -80,6 +80,7 @@
             "composer require --working-dir=tools/php-cs-fixer friendsofphp/php-cs-fixer --dev"
         ],
         "cs-fix": [
+            "@install-php-cs-fixer-in-tools-dir",
             "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src",
             "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix tests"
         ],
@@ -87,6 +88,10 @@
             "@composer cs-fix",
             "vendor/bin/phpstan"
         ]
+    },
+    "scripts-descriptions": {
+        "cs-fix": "Run PHP-CS-fixer from tools directory and fix errors in src and tests directories",
+        "check-quality": "Run quality test: phpstan and php-cs-fixer"
     },
     "conflict": {
         "symfony/symfony": "*"
