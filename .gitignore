@@ -20,8 +20,8 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
-###> tools/php-cs-fixer ###
-/tools/php-cs-fixer/vendor
-###< tools/php-cs-fixer ###
+###> tools vendor ###
+/*/*/vendor
+###< tools vendor ###
 
 
