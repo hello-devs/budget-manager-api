@@ -1,0 +1,10 @@
+parameters:
+  # Définition du niveau de qualité
+  level: 9
+  # Exclusions
+  excludePaths:
+    - vendor
+  # Inclusions
+  paths:
+    - tests
+    - src
