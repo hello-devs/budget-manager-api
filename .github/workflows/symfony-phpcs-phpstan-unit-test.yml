@@ -42,6 +42,8 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
+      - name: Composer Install PHP-CS-Fixer
+        run: cd tools/php-cs-fixer && composer install --ansi --prefer-dist --no-interaction --no-progress
       - name: Check code quality
         run: composer check-quality
       - name: Run Migration

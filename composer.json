@@ -80,7 +80,6 @@
             "composer require --working-dir=tools/php-cs-fixer friendsofphp/php-cs-fixer --dev"
         ],
         "cs-fix": [
-            "@install-php-cs-fixer-in-tools-dir",
             "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src",
             "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix tests"
         ],
