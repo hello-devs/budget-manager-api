@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/class-diagram
+!theme cerulean-outline
+skinparam backgroundColor white
+'----------------------------------------------
+
+class Budget {
+
+    - id: int
+    - name: string
+    - createdAt: DateTime
+    - operations: Operation[]
+
+    getBalanceAt(DateTime date)
+
+
+}
+
+@enduml
