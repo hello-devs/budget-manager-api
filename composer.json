@@ -37,6 +37,9 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^1.1",
+        "phpunit/phpunit": "^9.5",
+        "symfony/browser-kit": "5.3.*",
+        "symfony/css-selector": "5.3.*",
         "symfony/debug-bundle": "5.3.*",
         "symfony/phpunit-bridge": "^5.3",
         "symfony/stopwatch": "5.3.*",
@@ -51,13 +54,12 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/",
-            "Test\\": "tests"
+            "App\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "Tests\\": "tests/"
         }
     },
     "replace": {
