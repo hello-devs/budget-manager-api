@@ -4,16 +4,31 @@
 skinparam backgroundColor white
 '----------------------------------------------
 
+class User{
+        -id
+     -email
+     -username
+     -roles
+     -plainPassword
+     -password
+}
+
 class Budget {
 
     - id: int
     - name: string
     - createdAt: DateTime
-    - operations: Operation[]
+    - transactions: Transaction[]
 
-    getBalanceAt(DateTime date)
+    + __construct(string budgetName)
+    + getBalanceAt(DateTime date)
 
+}
 
+class Transaction {
+
+    - id: int
+    - budget: int (FK)
 }
 
 @enduml
