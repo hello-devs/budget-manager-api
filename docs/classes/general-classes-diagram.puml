@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/class-diagram
+!theme cerulean-outline
+skinparam backgroundColor white
+'----------------------------------------------
+
+class User{
+        -id
+     -email
+     -username
+     -roles
+     -plainPassword
+     -password
+}
+
+class Budget {
+
+    - id: int
+    - name: string
+    - createdAt: DateTime
+    - transactions: Transaction[]
+
+    + __construct(string budgetName)
+    + getBalanceAt(DateTime date)
+
+}
+
+class Transaction {
+
+    - id: int
+    - budget: int (FK)
+}
+
+@enduml

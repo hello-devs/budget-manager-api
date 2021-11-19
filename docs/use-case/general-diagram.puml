@@ -1,10 +1,17 @@
 @startuml
 !theme materia
 skinparam actorStyle awesome
-skinparam roundcorner 15
+skinparam roundcorner 10
+skinparam BackgroundColor #555555
 skinparam usecase{
     BackgroundColor white
     FontColor black
+}
+skinparam Actor{
+    BackgroundColor white
+    BorderColor black
+    FontColor white
+    FontStyle bold
 }
 skinparam rectangle{
     BackgroundColor WhiteSmoke
@@ -12,11 +19,11 @@ skinparam rectangle{
 left to right direction
 '----------------------------------------------
 
-actor :Visitor: as V
-actor :Budget Manager: as BM
+actor :VISITOR: as V
+actor :BUDGET MANAGER: as BM
 
 V -> (can create account)
-V -> (can connect to his account)
+V -> (can authenticate)
 V -> (can retrieve password)
 
 V --> BM : when authenticated
