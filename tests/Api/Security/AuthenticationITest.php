@@ -4,18 +4,33 @@ namespace Tests\Api\Security;
 
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 
 class AuthenticationITest extends WebTestCase
 {
+    private ?object $hasher;
+
+    protected function setUp(): void
+    {
+        self::bootKernel();
+        $container = static::getContainer();
+        /** @var UserPasswordHasher  hasher */
+        $this->hasher = $container->get('security.user_password_hasher');
+    }
+
     /** @test */
     public function user_should_be_able_to_get_jwt_token_when_authenticated_with_correct_login_and_password(): void
     {
         //We have a user in the database
         $user = new User();
+        $pwd = $this->hasher->hashPassword($user,'pwd');
         $user
             ->setUsername('tester')
             ->setEmail('tester@email.com')
+            ->setPassword($pwd)
         ;
+
+        dump($user);
 
 
         //When the user request the api login endpoint

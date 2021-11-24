@@ -2,20 +2,18 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+
 /**
  *
+ * @method string getUserIdentifier()
  */
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     private string $username;
     private string $email;
-
-
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
-        return $this;
-    }
+    private string $password;
 
     /**
      * @return string|null
@@ -25,9 +23,13 @@ class User
         return $this->username;
     }
 
-    public function setEmail(string $email): self
+    /**
+     * @param string $username
+     * @return $this
+     */
+    public function setUsername(string $username): self
     {
-        $this->email = $email;
+        $this->username = $username;
         return $this;
     }
 
@@ -37,5 +39,49 @@ class User
     public function getEmail(): ?string
     {
         return $this->email;
+    }
+
+    /**
+     * @param string $email
+     * @return $this
+     */
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    public function getRoles()
+    {
+        // TODO: Implement getRoles() method.
+    }
+
+    public function getSalt()
+    {
+        // TODO: Implement getSalt() method.
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
+    public function __call(string $name, array $arguments)
+    {
+        // TODO: Implement @method string getUserIdentifier()
     }
 }
