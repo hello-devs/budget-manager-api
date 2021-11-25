@@ -5,15 +5,18 @@ namespace App\Entity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- *
- * @method string getUserIdentifier()
- */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     private string $username;
     private string $email;
     private string $password;
+    /** @var array<string> $roles  */
+    private array $roles = [];
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
 
     /**
      * @return string|null
@@ -62,26 +65,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
+
         return $this;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
-        // TODO: Implement getRoles() method.
+        $this->roles[] = 'ROLE_USER';
+
+        return $this->roles;
+    }
+
+    /**
+     * @param array<string> $roles
+     * @return $this
+     */
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
     }
 
     public function getSalt()
     {
-        // TODO: Implement getSalt() method.
+        return null;
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         // TODO: Implement eraseCredentials() method.
-    }
-
-    public function __call(string $name, array $arguments)
-    {
-        // TODO: Implement @method string getUserIdentifier()
     }
 }

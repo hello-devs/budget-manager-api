@@ -17,9 +17,8 @@
 /*/*/vendor
 ###< tools vendor ###
 
+###> php-cs-fixer ###
+.php-cs-fixer.cache
+###< php-cs-fixer ###
 
 
-###> phpunit/phpunit ###
-/phpunit.xml
-.phpunit.result.cache
-###< phpunit/phpunit ###
