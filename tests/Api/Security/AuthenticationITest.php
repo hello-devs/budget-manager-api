@@ -55,13 +55,12 @@ class AuthenticationITest extends WebTestCase
         $this->entityManager = $em;
         $this->entityManager->beginTransaction();
         $this->entityManager->getConnection()->setAutoCommit(false);
-
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
-        if($this->entityManager->getConnection()->isTransactionActive()) {
+        if ($this->entityManager->getConnection()->isTransactionActive()) {
             $this->entityManager->rollback();
         }
     }

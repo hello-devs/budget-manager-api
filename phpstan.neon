@@ -8,3 +8,6 @@ parameters:
   paths:
     - tests
     - src
+  #
+  doctrine:
+    objectManagerLoader: tests/object-manager.php
