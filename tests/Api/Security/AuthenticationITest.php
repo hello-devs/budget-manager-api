@@ -29,8 +29,8 @@ class AuthenticationITest extends WebTestCase
             ->setPassword($pwd)
         ;
 
-        //Todo: map User class with doctrine to fix error
         $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
         //When the user request the api login endpoint
 //        $client = static::createClient();
