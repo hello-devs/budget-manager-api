@@ -5,6 +5,7 @@ namespace Tests\Api\Security;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -12,7 +13,7 @@ class AuthenticationITest extends WebTestCase
 {
     private UserPasswordHasherInterface $hasher;
     private EntityManagerInterface $entityManager;
-    private $client;
+    private KernelBrowser $client;
 
     /** @test
      * @throws Exception
@@ -44,7 +45,7 @@ class AuthenticationITest extends WebTestCase
             'POST',
             '/api/login',
             [], [], [],
-            $content
+            (string) $content
         );
 
         var_dump($this->client->getResponse()->getStatusCode());
