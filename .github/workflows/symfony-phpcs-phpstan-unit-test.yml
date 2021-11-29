@@ -50,6 +50,8 @@ jobs:
           php bin/console --env=test doctrine:migrations:migrate || echo "No migrations found or migration failed"
         env:
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
+      - name: generate lexik key
+        run: bin/console lexik:jwt:generate-keypair --skip-if-exists
       - name: Install PHPUnit
         run: simple-phpunit install
       - name: Check code quality
