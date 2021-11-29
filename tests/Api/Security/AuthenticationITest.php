@@ -20,44 +20,60 @@ class AuthenticationITest extends WebTestCase
      */
     public function user_should_be_able_to_get_jwt_token_when_authenticated_with_correct_login_and_password(): void
     {
-        $username = 'tester';
         $email = 'tester@email.com';
+        $plainPassword = 'pwd';
         //We have a user in the database
         $user = new User();
-        $pwd = $this->hasher->hashPassword($user, 'pwd');
+        $pwd = $this->hasher->hashPassword($user, $plainPassword);
 
+        //todo refactor in a create user function
         $user
-            ->setUsername($username)
             ->setEmail($email)
-            ->setPassword($pwd);
+            ->setPassword($pwd)
+            ->setRoles(['ROLE_USER', 'ROLE_TESTER']);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         //When the user request the api login endpoint
         $content = json_encode([
-            'username' => $username,
-            'password' => $pwd
+            'email' => $email,
+            'password' => $plainPassword
         ]);
 
-//        $client = static::createClient();
+        //todo refactor in a request token function
         $crawler = $this->client->request(
             'POST',
-            '/api/login',
-            [], [], [],
-            (string) $content
+            '/get_token',
+            [],
+            [],
+            [
+                "CONTENT_TYPE" => "application/json",
+                "HTTP_ACCEPT" => "application/json"
+            ],
+            (string)$content
         );
 
-        var_dump($this->client->getResponse()->getStatusCode());
+        $responseContent = $this->client->getResponse()->getContent();
+        //Todo improve readability
+        $jwt = ($responseContent) ? //If we get response
+            is_array(json_decode($responseContent, true)) ? //If decode response give array
+                json_decode($responseContent, true)['token'] : //
+                null :
+            null;
 
-        //We expect
+
+        var_dump($jwt);
+
+        //We expect the endpoint exist
         $this->assertResponseIsSuccessful();
+        //We expect response body give us a json web token
+        $this->assertNotNull($jwt);
     }
 
     protected function setUp(): void
     {
         parent::setUp();
-//        self::bootKernel();
         $this->client = static::createClient();
 
         $container = static::getContainer();

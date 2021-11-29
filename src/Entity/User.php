@@ -2,14 +2,16 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UserRepository;
+use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[
     ORM\Entity(repositoryClass: UserRepository::class),
-    ORM\Table(name: "`user`")
+    ORM\Table(name: "`user`"),
 ]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -17,9 +19,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
     private ?int $id;
-
-    #[ORM\Column(type: "string", length: 180, unique: true)]
-    private string $username;
 
     #[ORM\Column(type: "string", length: 180, unique: true)]
     private string $email;
@@ -40,24 +39,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
-
-    /**
-     * @param string $username
-     * @return $this
-     */
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
-        return $this;
     }
 
     /**
@@ -97,7 +78,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->roles[] = 'ROLE_USER';
 
-        return $this->roles;
+        return array_unique($this->roles);
     }
 
     /**
@@ -119,5 +100,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+    public function getUsername(): string
+    {
+        return $this->getUserIdentifier();
     }
 }

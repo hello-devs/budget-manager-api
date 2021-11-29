@@ -29,7 +29,6 @@ class UserTest extends TestCase
 
         //When we set his properties
         $user
-            ->setUsername('tester')
             ->setEmail('tester@email.com')
         ;
         $pwd = $this->passwordHasher->hashPassword($user, 'pwd');
@@ -44,7 +43,6 @@ class UserTest extends TestCase
         $user->setRoles(['ROLE_TESTER']);
         $roles = $user->getRoles();
 
-        $this->assertEquals('tester', $username);
         $this->assertEquals('tester@email.com', $identifier);
         $this->assertEquals('tester@email.com', $email);
         $this->assertTrue($isValidPassword, "The password submitted to verification isn't valid");
