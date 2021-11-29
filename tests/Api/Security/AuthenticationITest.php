@@ -36,12 +36,14 @@ class AuthenticationITest extends WebTestCase
         $this->entityManager->flush();
 
         //When the user request the api login endpoint
+        //todo refactor in a request token function
         $content = json_encode([
             'email' => $email,
             'password' => $plainPassword
         ]);
 
-        //todo refactor in a request token function
+        $jwt = null;
+
         $crawler = $this->client->request(
             'POST',
             '/get_token',
@@ -55,15 +57,12 @@ class AuthenticationITest extends WebTestCase
         );
 
         $responseContent = $this->client->getResponse()->getContent();
-        //Todo improve readability
-        $jwt = ($responseContent) ? //If we get response
-            is_array(json_decode($responseContent, true)) ? //If decode response give array
-                json_decode($responseContent, true)['token'] : //
-                null :
-            null;
 
-
-        var_dump($jwt);
+        if ($responseContent
+            && is_array(json_decode($responseContent, true))
+            && array_key_exists('token', json_decode($responseContent, true))) {
+            $jwt = json_decode($responseContent, true)['token'];
+        }
 
         //We expect the endpoint exist
         $this->assertResponseIsSuccessful();
