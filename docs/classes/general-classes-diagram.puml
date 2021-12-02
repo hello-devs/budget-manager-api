@@ -6,11 +6,9 @@ skinparam backgroundColor white
 
 class User{
         -id
-     -email
-     -username
-     -roles
-     -plainPassword
-     -password
+        -email
+        -password
+        -roles
 }
 
 class Budget {
