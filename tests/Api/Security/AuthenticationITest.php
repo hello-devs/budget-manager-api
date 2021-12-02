@@ -2,21 +2,20 @@
 
 namespace Tests\Api\Security;
 
+use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class AuthenticationITest extends WebTestCase
+class AuthenticationITest extends ApiTestCase
 {
     private UserPasswordHasherInterface $hasher;
     private EntityManagerInterface $entityManager;
-    private KernelBrowser $client;
+    private Client $client;
 
     /** @test
-     * @throws Exception
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function user_should_be_able_to_get_jwt_token_when_authenticated_with_correct_login_and_password(): void
     {
@@ -44,19 +43,19 @@ class AuthenticationITest extends WebTestCase
 
         $jwt = null;
 
-        $crawler = $this->client->request(
+        $response = $this->client->request(
             'POST',
             '/get_token',
-            [],
-            [],
             [
-                "CONTENT_TYPE" => "application/json",
-                "HTTP_ACCEPT" => "application/json"
+                'body' => $content,
+                'headers' => [
+                    "CONTENT_TYPE" => "application/json",
+                    "HTTP_ACCEPT" => "application/json"
+                ]
             ],
-            (string)$content
         );
 
-        $responseContent = $this->client->getResponse()->getContent();
+        $responseContent = $response->getContent();
 
         if ($responseContent
             && is_array(json_decode($responseContent, true))
@@ -73,6 +72,7 @@ class AuthenticationITest extends WebTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        self::bootKernel();
         $this->client = static::createClient();
 
         $container = static::getContainer();
