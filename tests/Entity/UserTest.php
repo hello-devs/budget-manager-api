@@ -42,12 +42,14 @@ class UserTest extends TestCase
         $isValidPassword = $this->passwordHasher->isPasswordValid($user, 'pwd');
         $user->setRoles(['ROLE_TESTER']);
         $roles = $user->getRoles();
+        $id = $user->getId();
 
         $this->assertEquals('tester@email.com', $identifier);
         $this->assertEquals('tester@email.com', $email);
         $this->assertTrue($isValidPassword, "The password submitted to verification isn't valid");
         $this->assertContains('ROLE_TESTER', $roles, "User don't have expected ROLE_TESTER");
         $this->assertContains('ROLE_USER', $roles, "User don't have expected role ROLE_USER");
+        $this->assertNull($id);
     }
 
     protected function setUp(): void

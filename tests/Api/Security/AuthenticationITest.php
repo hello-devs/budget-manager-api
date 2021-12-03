@@ -8,7 +8,6 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Tests\Api\AbstractApiTestCase;
 
-
 class AuthenticationITest extends AbstractApiTestCase
 {
     /** @test
