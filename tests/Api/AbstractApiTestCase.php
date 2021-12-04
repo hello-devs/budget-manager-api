@@ -50,11 +50,23 @@ abstract class AbstractApiTestCase extends ApiTestCase
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-    protected function createClientWithJwtCredential(string $authenticationUrl, array $body = [], ?string $token= null): Client
+    protected function createClientWithJwtCredential(string $authenticationUrl, array $body = [], ?string $token = null): Client
     {
         $token = $token ?: $this->getToken($authenticationUrl, $body);
+        var_dump($token);
 
-        return static::createClient([], ['headers' => ['authorization' => 'Bearer '.$token]]);
+        $clientWithToken = static::createClient(
+            [],
+            ['headers' =>
+                [
+                    'authorization' => 'Bearer ' . $token,
+                    "Content-Type" => "application/json",
+                    "Accept" => "application/json"
+                ]
+            ]
+        );
+        $clientWithToken->disableReboot();
+        return $clientWithToken;
     }
 
     /**

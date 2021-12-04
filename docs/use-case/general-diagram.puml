@@ -19,14 +19,15 @@ skinparam rectangle{
 left to right direction
 '----------------------------------------------
 
-actor :VISITOR: as V
+actor :User: as U
+actor :API ADMIN: as ADM
 actor :BUDGET MANAGER: as BM
 
-V -> (can create account)
-V -> (can authenticate)
-V -> (can retrieve password)
+ADM -> (manage resource user CRUD)
 
-V --> BM : when authenticated
+U -> ([v] can authenticate)
+U -> (can reset password)
+
 
 
 rectangle BUDGET{
