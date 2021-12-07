@@ -15,8 +15,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 abstract class AbstractApiTestCase extends ApiTestCase
 {
-    protected ?Client $client = null;
-    protected ?Client $clientWithToken = null;
+    protected Client $client;
+    protected Client $clientWithToken;
     protected UserPasswordHasherInterface $hasher;
     protected EntityManagerInterface $entityManager;
     protected string $token;
@@ -61,13 +61,13 @@ abstract class AbstractApiTestCase extends ApiTestCase
     /**
      * @param string $authenticationUrl
      * @param array<string,string> $body
-     * @return string|null
+     * @return string
      * @throws TransportExceptionInterface
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      */
-    protected function getToken(string $authenticationUrl, array $body = []): ?string
+    protected function getToken(string $authenticationUrl, array $body = []): string
     {
         if (isset($this->token)) {
             return $this->token;
@@ -89,7 +89,7 @@ abstract class AbstractApiTestCase extends ApiTestCase
             return $this->token;
         }
 
-        return null;
+        return "null";
     }
 
     protected function setUp(): void
@@ -129,8 +129,8 @@ abstract class AbstractApiTestCase extends ApiTestCase
             $this->entityManager->rollback();
         }
 
-        $this->clientWithToken = null;
-        $this->client = null;
+        unset($this->client);
+        unset($this->clientWithToken);
 
         self::ensureKernelShutdown();
     }

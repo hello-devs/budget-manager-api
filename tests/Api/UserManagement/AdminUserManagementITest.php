@@ -17,7 +17,7 @@ class AdminUserManagementITest extends AbstractApiTestCase
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function role_api_admin_is_required_to_manage_user()
+    public function role_api_admin_is_required_to_manage_user(): void
     {
         $email = "tester@email.com";
         $plainPwd = "password";
@@ -29,6 +29,8 @@ class AdminUserManagementITest extends AbstractApiTestCase
         $this->requestWithJwt("GET", "/api/users", $token);
 
         //We expect resource is not accessible
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(403);
     }
+
+    //todo assert that ROLE_ADMIN can access user list
 }

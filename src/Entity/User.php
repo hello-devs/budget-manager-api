@@ -13,7 +13,12 @@ use Doctrine\ORM\Mapping as ORM;
     ORM\Entity(repositoryClass: UserRepository::class),
     ORM\Table(name: "`user`"),
     ApiResource(
-        attributes: ["security" => "is_granted('ROLE_USER')"],
+        collectionOperations: [
+            "get" => [
+                "security" => "is_granted('ROLE_ADMIN')",
+                "security_message" => "Only admins can get users lists.",
+            ],
+        ],
     )
 ]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
