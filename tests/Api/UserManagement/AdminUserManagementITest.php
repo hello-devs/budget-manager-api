@@ -10,8 +10,8 @@ use Tests\Api\AbstractApiTestCase;
 
 class AdminUserManagementITest extends AbstractApiTestCase
 {
-
     /**
+     * @test
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
@@ -19,19 +19,16 @@ class AdminUserManagementITest extends AbstractApiTestCase
      */
     public function role_api_admin_is_required_to_manage_user()
     {
-        $email="tester@email.com";
+        $email = "tester@email.com";
         $plainPwd = "password";
         //We have a user with basic "ROLE_USER"
-        $this->createUserInDatabase($email,$plainPwd);
-        $token = $this->getToken("/get_token",["email"=>$email,"password"=>$plainPwd]);
-//        $this->createClientWithJwtCredential("/get_token",[])->request("GET","/api/users");
-//        $clientWithJWT = $this->createClientWithJwtCredential("/get_token",["email"=>$email,"password"=>$plainPwd]);
+        $this->createUserInDatabase($email, $plainPwd);
+        $token = $this->getToken("/get_token", ["email" => $email, "password" => $plainPwd]);
+
         //When we request users list
-//        $response = $clientWithJWT->request("GET","/api/users");
+        $this->requestWithJwt("GET", "/api/users", $token);
+
         //We expect resource is not accessible
         $this->assertResponseStatusCodeSame(400);
-
-
-
     }
 }

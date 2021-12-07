@@ -11,10 +11,12 @@ use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 abstract class AbstractApiTestCase extends ApiTestCase
 {
-    protected Client $client;
+    protected ?Client $client = null;
+    protected ?Client $clientWithToken = null;
     protected UserPasswordHasherInterface $hasher;
     protected EntityManagerInterface $entityManager;
     protected string $token;
@@ -39,34 +41,21 @@ abstract class AbstractApiTestCase extends ApiTestCase
     }
 
     /**
-     * @param array<string,string> $body
-     *  must contain valid user data formatted as:
-     *  [
-     *      "email" or "username" => "value",
-     *      "password" => "value"
-     *  ]
+     * @param string $method
+     * @param string $url
+     * @param string $token
+     * @return ResponseInterface
      * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ClientExceptionInterface
      */
-    protected function createClientWithJwtCredential(string $authenticationUrl, array $body = [], ?string $token = null): Client
+    protected function requestWithJwt(string $method, string $url, string $token): ResponseInterface
     {
-        $token = $token ?: $this->getToken($authenticationUrl, $body);
-        var_dump($token);
-
-        $clientWithToken = static::createClient(
-            [],
-            ['headers' =>
-                [
-                    'authorization' => 'Bearer ' . $token,
-                    "Content-Type" => "application/json",
-                    "Accept" => "application/json"
-                ]
+        return $this->client->request($method, $url, [
+            'headers' => [
+                "Authorization" => "Bearer $token",
+                "Content-Type" => "application/json",
+                "Accept" => "application/json"
             ]
-        );
-        $clientWithToken->disableReboot();
-        return $clientWithToken;
+        ]);
     }
 
     /**
@@ -139,6 +128,9 @@ abstract class AbstractApiTestCase extends ApiTestCase
         if ($this->entityManager->getConnection()->isTransactionActive()) {
             $this->entityManager->rollback();
         }
+
+        $this->clientWithToken = null;
+        $this->client = null;
 
         self::ensureKernelShutdown();
     }
