@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Entity;
+namespace Tests\units;
 
 use App\Entity\User;
 use Monolog\Test\TestCase;

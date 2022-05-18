@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Api;
+namespace Tests\fonctionnals;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
@@ -44,17 +44,19 @@ abstract class AbstractApiTestCase extends ApiTestCase
      * @param string $method
      * @param string $url
      * @param string $token
+     * @param array<string,mixed> $json
      * @return ResponseInterface
      * @throws TransportExceptionInterface
      */
-    protected function requestWithJwt(string $method, string $url, string $token): ResponseInterface
+    protected function requestWithJwt(string $method, string $url, string $token, array $json = []): ResponseInterface
     {
         return $this->client->request($method, $url, [
             'headers' => [
                 "Authorization" => "Bearer $token",
                 "Content-Type" => "application/json",
                 "Accept" => "application/json"
-            ]
+            ],
+            "json" => $json
         ]);
     }
 

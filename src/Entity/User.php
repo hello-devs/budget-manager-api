@@ -18,6 +18,10 @@ use Doctrine\ORM\Mapping as ORM;
                 "security" => "is_granted('ROLE_ADMIN')",
                 "security_message" => "Only admins can get users lists.",
             ],
+            "post" => [
+                "security" => "is_granted('ROLE_CLIENT')",
+                "security_message" => "Only admins can create user",
+            ]
         ],
     )
 ]
