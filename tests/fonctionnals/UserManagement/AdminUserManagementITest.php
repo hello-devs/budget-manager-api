@@ -17,6 +17,7 @@ class AdminUserManagementITest extends AbstractApiTestCase
      * @param string $password
      * @param array<string> $role
      * @param int $expectedStatusCodeForListingUser
+     * @param int $expectedStatusCodeForCreatingUser
      * @return void
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
@@ -28,7 +29,8 @@ class AdminUserManagementITest extends AbstractApiTestCase
         string $password,
         array  $role,
         int    $expectedStatusCodeForListingUser,
-        int    $expectedStatusCodeForCreatingUser): void
+        int    $expectedStatusCodeForCreatingUser
+    ): void
     {
         //We have a user with basic "ROLE_USER"
         $this->createUserInDatabase($email, $password, $role);
@@ -47,9 +49,7 @@ class AdminUserManagementITest extends AbstractApiTestCase
         ]);
 
         //We expect user creation is accessible  with at least ROLE_CLIENT
-//        dump($res->getStatusCode());
         $this->assertResponseStatusCodeSame($expectedStatusCodeForCreatingUser);
-
     }
 
     /**
