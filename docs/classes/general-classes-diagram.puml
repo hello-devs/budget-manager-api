@@ -16,7 +16,7 @@ class Budget {
     - id: int
     - name: string
     - startAmount: int
-    - startedAt: DateTime
+    - startAt: DateTime
     - endAt: DateTime
     - budgetTransaction: BudgetTransaction[]
 
