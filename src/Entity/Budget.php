@@ -3,27 +3,22 @@
 namespace App\Entity;
 
 use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 class Budget
 {
-
     public function __construct(
-
         #[ORM\Column(type: "string", length: 180, unique: true)]
         private string                     $name,
-
         private readonly User              $user,
-
-        private readonly DateTimeImmutable $startDate,
-        private ?DateTimeImmutable         $endDate = null,
-
+        private readonly DateTimeInterface $startDate,
+        private ?DateTimeInterface         $endDate = null,
         #[ORM\Id]
         #[ORM\GeneratedValue]
         #[ORM\Column(type: "integer")]
         private readonly ?int              $id = null
-    )
-    {
+    ) {
     }
 
     /**
@@ -57,28 +52,26 @@ class Budget
     }
 
     /**
-     * @return DateTimeImmutable
+     * @return DateTimeInterface
      */
-    public function getStartDate(): DateTimeImmutable
+    public function getStartDate(): DateTimeInterface
     {
         return $this->startDate;
     }
 
     /**
-     * @return DateTimeImmutable|null
+     * @return DateTimeInterface|null
      */
-    public function getEndDate(): ?DateTimeImmutable
+    public function getEndDate(): ?DateTimeInterface
     {
         return $this->endDate;
     }
 
     /**
-     * @param DateTimeImmutable|null $endDate
+     * @param DateTimeInterface|null $endDate
      */
-    public function setEndDate(?DateTimeImmutable $endDate): void
+    public function setEndDate(?DateTimeInterface $endDate): void
     {
         $this->endDate = $endDate;
     }
-
-
 }
