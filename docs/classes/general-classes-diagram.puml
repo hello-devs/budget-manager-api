@@ -15,8 +15,10 @@ class Budget {
 
     - id: int
     - name: string
-    - createdAt: DateTime
-    - transactions: Transaction[]
+    - startAmount: int
+    - startedAt: DateTime
+    - endAt: DateTime
+    - budgetTransaction: BudgetTransaction[]
 
     + __construct(string budgetName)
     + getBalanceAt(DateTime date)
@@ -26,7 +28,17 @@ class Budget {
 class Transaction {
 
     - id: int
-    - budget: int (FK)
+    - amount: int (FK)
+}
+
+class BudgetTransaction {
+
+    - id: int
+    - createdAt: DateTime
+    - isNegative: ?bool
+    - isRecurrent: ?bool
+    - transactionId: int (FK)
+    - budgetId: int (FK)
 }
 
 @enduml
