@@ -3,7 +3,7 @@
 namespace Tests\units;
 
 use App\Entity\User;
-use Monolog\Test\TestCase;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 
