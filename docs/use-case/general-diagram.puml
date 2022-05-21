@@ -38,12 +38,12 @@ rectangle BUDGET{
     BM --> (can delete Budget)
     BM --> (can see a list of operations relative to Budget)
 }
-rectangle OPERATION{
- BM --> (create Operation)
+rectangle TRANSACTION{
+ BM --> (create Transaction)
  BM --> (can add expenses to the budget)
  BM --> (can add money to the budget )
  BM --> (can create recurring operation list)
- BM --> (can add Operation to Recurring operations List)
+ BM --> (can add Transaction to Recurring operations List)
 }
 
 
