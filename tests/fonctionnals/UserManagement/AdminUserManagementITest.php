@@ -30,8 +30,7 @@ class AdminUserManagementITest extends AbstractApiTestCase
         array  $role,
         int    $expectedStatusCodeForListingUser,
         int    $expectedStatusCodeForCreatingUser
-    ): void
-    {
+    ): void {
         //We have a user with basic "ROLE_USER"
         $this->createUserInDatabase($email, $password, $role);
         $token = $this->getToken("/get_token", ["email" => $email, "password" => $password]);
