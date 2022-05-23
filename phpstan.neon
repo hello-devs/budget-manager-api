@@ -4,6 +4,7 @@ parameters:
   # Exclusions
   excludePaths:
     - vendor
+    - tools
   # Inclusions
   paths:
     - tests
