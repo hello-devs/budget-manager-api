@@ -2,21 +2,40 @@
 
 namespace App\Entity;
 
-use DateTimeInterface;
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Repository\BudgetRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ApiResource(
+    collectionOperations: [
+        "post" => [
+            "security" => "is_granted('ROLE_USER')"
+        ],
+        "get" => [
+            "security" => "is_granted('ROLE_USER') and object.creator == user"
+        ]
+    ],
+    itemOperations: ['get']
+)]
+#[ORM\Entity(repositoryClass: BudgetRepository::class)]
 class Budget
 {
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
+    private ?int $id = null;
+
     public function __construct(
-        #[ORM\Column(type: "string", length: 180, unique: true)]
-        private string                     $name,
-        private readonly User              $user,
-        private readonly DateTimeInterface $startDate,
-        private ?DateTimeInterface         $endDate = null,
-        #[ORM\Id]
-        #[ORM\GeneratedValue]
-        #[ORM\Column(type: "integer")]
-        private readonly ?int              $id = null
+        #[ORM\Column(type: 'string', length: 255)]
+        private string             $name,
+        #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'budget')]
+        #[ORM\JoinColumn(nullable: false)]
+        private User              $creator,
+        #[ORM\Column(type: 'date_immutable')]
+        private DateTimeImmutable  $startDate,
+        #[ORM\Column(type: 'date_immutable', nullable: true)]
+        private ?DateTimeImmutable $endDate = null,
+        #[ORM\Column(type: 'integer')]
+        private int                $startAmount = 0,
     ) {
     }
 
@@ -25,33 +44,63 @@ class Budget
         return $this->id;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
-    public function getUser(): User
+    public function getCreator(): User
     {
-        return $this->user;
+        return $this->creator;
     }
 
-    public function getStartDate(): DateTimeInterface
+    public function setCreator(User $creator): self
+    {
+        $this->creator = $creator;
+
+        return $this;
+    }
+
+    public function getStartDate(): ?DateTimeImmutable
     {
         return $this->startDate;
     }
 
-    public function getEndDate(): ?DateTimeInterface
+    public function setStartDate(DateTimeImmutable $startDate): self
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    public function getEndDate(): ?DateTimeImmutable
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?DateTimeInterface $endDate): void
+    public function setEndDate(?DateTimeImmutable $endDate): self
     {
         $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    public function getStartAmount(): int
+    {
+        return $this->startAmount;
+    }
+
+    public function setStartAmount(int $startAmount): self
+    {
+        $this->startAmount = $startAmount;
+
+        return $this;
     }
 }

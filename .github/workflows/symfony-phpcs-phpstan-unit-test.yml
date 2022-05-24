@@ -52,11 +52,9 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
       - name: generate lexik key
         run: bin/console lexik:jwt:generate-keypair --skip-if-exists
-      - name: Install PHPUnit
-        run: simple-phpunit install
       - name: Check code quality
         run: composer check-quality
       - name: Run tests
-        run: simple-phpunit --coverage-text
+        run: bin/phpunit --coverage-text
         env:
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
