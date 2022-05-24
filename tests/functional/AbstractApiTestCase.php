@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\fonctionnals;
+namespace Tests\functional;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
@@ -25,8 +25,9 @@ abstract class AbstractApiTestCase extends ApiTestCase
      * @param string $email
      * @param string $password
      * @param string[] $roles
+     * @return int|null return user id after persistance.
      */
-    protected function createUserInDatabase(string $email, string $password, array $roles = ['ROLE_USER']): void
+    protected function createUserInDatabase(string $email, string $password, array $roles = ['ROLE_USER']): ?int
     {
         $user = new User();
         $hashedPassword = $this->hasher->hashPassword($user, $password);
@@ -38,6 +39,8 @@ abstract class AbstractApiTestCase extends ApiTestCase
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        return $user->getId();
     }
 
     /**
@@ -45,18 +48,20 @@ abstract class AbstractApiTestCase extends ApiTestCase
      * @param string $url
      * @param string $token
      * @param array<string,mixed> $json
+     * @param array<array<string,mixed>> $options
      * @return ResponseInterface
      * @throws TransportExceptionInterface
      */
-    protected function requestWithJwt(string $method, string $url, string $token, array $json = []): ResponseInterface
+    protected function requestWithJwt(string $method, string $url, string $token, array $json = [], array $options = []): ResponseInterface
     {
         return $this->client->request($method, $url, [
             'headers' => [
                 "Authorization" => "Bearer $token",
                 "Content-Type" => "application/json",
-                "Accept" => "application/json"
+                "Accept" => "application/ld+json"
             ],
-            "json" => $json
+            "json" => $json,
+            ...$options
         ]);
     }
 

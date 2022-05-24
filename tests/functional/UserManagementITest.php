@@ -1,14 +1,16 @@
 <?php
 
-namespace Tests\fonctionnals\UserManagement;
+namespace Tests\functional;
 
+use App\Entity\User;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Tests\fonctionnals\AbstractApiTestCase;
 
-class AdminUserManagementITest extends AbstractApiTestCase
+class UserManagementITest extends AbstractApiTestCase
 {
     /**
      * @test
@@ -31,14 +33,14 @@ class AdminUserManagementITest extends AbstractApiTestCase
         int    $expectedStatusCodeForListingUser,
         int    $expectedStatusCodeForCreatingUser
     ): void {
-        //We have a user with basic "ROLE_USER"
+        //We have a user with "ROLE_..."
         $this->createUserInDatabase($email, $password, $role);
         $token = $this->getToken("/get_token", ["email" => $email, "password" => $password]);
 
         //When we request users list
         $this->requestWithJwt("GET", "/api/users", $token);
 
-        //We expect resource is accessible with at least ROLE_ADMIN
+        //We expect user listing is accessible only with at least ROLE_ADMIN
         $this->assertResponseStatusCodeSame($expectedStatusCodeForListingUser);
 
         //When we request user creation
@@ -47,8 +49,15 @@ class AdminUserManagementITest extends AbstractApiTestCase
             "password" => "new-user-password"
         ]);
 
-        //We expect user creation is accessible  with at least ROLE_CLIENT
+        //We expect user creation is accessible only with at least ROLE_CLIENT
         $this->assertResponseStatusCodeSame($expectedStatusCodeForCreatingUser);
+
+        //When we request user with email
+        $userData = $this->requestWithJwt("GET", "/api/users/me", $token)->getContent();
+
+
+        //We expect
+        $this->assertResponseStatusCodeSame(200);
     }
 
     /**
@@ -60,7 +69,6 @@ class AdminUserManagementITest extends AbstractApiTestCase
             ["tester@email.com", "password", ["ROLE_USER"], 403, 403],
             ["tester@email.com", "password", ["ROLE_CLIENT"], 403, 201],
             ["tester@email.com", "password", ["ROLE_ADMIN"], 200, 201],
-            ["tester@email.com", "password", ["ROLE_SUPER_ADMIN"], 200, 201]
         ];
     }
 }

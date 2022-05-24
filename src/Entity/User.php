@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UserRepository;
-use JetBrains\PhpStorm\Pure;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[
     ORM\Entity(repositoryClass: UserRepository::class),
@@ -23,6 +25,12 @@ use Doctrine\ORM\Mapping as ORM;
                 "security_message" => "Only admins can create user",
             ]
         ],
+        itemOperations: [
+            "get" => [
+                "security" => "is_granted('ROLE_CLIENT')",
+                "security_message" => "Only admins can get users lists.",
+            ]
+        ]
     )
 ]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -30,9 +38,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    #[Groups("user-info")]
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 180, unique: true)]
+    #[Groups("user-info")]
     private string $email;
 
     #[ORM\Column(type: "string")]
@@ -41,6 +51,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /** @var array<string> $roles  */
     #[ORM\Column(type: "json")]
     private array $roles = [];
+
+    /** @var Collection<int, Budget>*/
+    #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Budget::class, orphanRemoval: true)]
+    #[Groups("user-info")]
+    private Collection $budget;
+
+    public function __construct()
+    {
+        $this->budget = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -117,5 +137,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUsername(): string
     {
         return $this->getUserIdentifier();
+    }
+
+    /**
+     * @return Collection<int, Budget>
+     */
+    public function getBudget(): Collection
+    {
+        return $this->budget;
     }
 }
