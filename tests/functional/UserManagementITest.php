@@ -49,6 +49,7 @@ class UserManagementITest extends AbstractApiTestCase
             "password" => "new-user-password"
         ]);
 
+
         //We expect user creation is accessible only with at least ROLE_CLIENT
         $this->assertResponseStatusCodeSame($expectedStatusCodeForCreatingUser);
 
