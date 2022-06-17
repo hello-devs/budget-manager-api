@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[
     ORM\Entity(repositoryClass: UserRepository::class),
@@ -29,6 +31,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
             "get" => [
                 "security" => "is_granted('ROLE_CLIENT')",
                 "security_message" => "Only admins can get users lists.",
+            ],
+            "put" => [
+                "security" => "object == user",
+                "security_message" => "Denied permission",
             ]
         ]
     )
@@ -45,14 +51,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups("user-info")]
     private string $email;
 
+    #[Assert\NotBlank]
+    #[SerializedName("password")]
+    private ?string $plainPassword = null;
+
     #[ORM\Column(type: "string")]
     private string $password;
 
-    /** @var array<string> $roles  */
+    /** @var array<string> $roles */
     #[ORM\Column(type: "json")]
     private array $roles = [];
 
-    /** @var Collection<int, Budget>*/
+    /** @var Collection<int, Budget> */
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Budget::class, orphanRemoval: true)]
     #[Groups("user-info")]
     private Collection $budget;
@@ -62,7 +72,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->budget = new ArrayCollection();
     }
 
-
     public function getId(): ?int
     {
         return $this->id;
@@ -70,7 +79,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
@@ -92,6 +101,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * @return string|null
+     */
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param string $plainPassword
+     */
+    public function setPlainPassword(string $plainPassword): void
+    {
+        $this->plainPassword = $plainPassword;
+    }
+
+    /**
      * @return string the hashed password
      */
     public function getPassword(): string
@@ -109,8 +134,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $this->roles[] = 'ROLE_USER';
+        $this->roles = array_unique($this->roles);
 
-        return array_unique($this->roles);
+        return $this->roles;
     }
 
     /**
@@ -131,7 +157,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        // TODO: Implement eraseCredentials() method.
+        $this->plainPassword = null;
     }
 
     public function getUsername(): string
