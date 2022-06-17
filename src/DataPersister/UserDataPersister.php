@@ -11,29 +11,47 @@ class UserDataPersister implements ContextAwareDataPersisterInterface
 {
     public function __construct(
         private readonly UserPasswordHasherInterface $hasher,
-        private readonly EntityManagerInterface $entityManager
-    )
-    {
+        private readonly EntityManagerInterface      $entityManager
+    ) {
     }
 
+    /**
+     * @param $data
+     * @param array<mixed> $context
+     * @return bool
+     */
     public function supports($data, array $context = []): bool
     {
         return $data instanceof User;
     }
 
-    public function persist($data, array $context = [])
+    /**
+     * @param User $data
+     * @param array<mixed> $context
+     * @return void
+     */
+    public function persist($data, array $context = []): void
     {
-        /** @var User $data */
-        $hashedPassword = $this->hasher->hashPassword($data, $data->getPassword());
+        if ($data->getPlainPassword()) {
+            $hashedPassword = $this->hasher->hashPassword($data, $data->getPlainPassword());
 
-        $data->setPassword($hashedPassword);
+            $data->setPassword($hashedPassword);
+        }
 
         $this->entityManager->persist($data);
         $this->entityManager->flush();
+
+        $data->eraseCredentials();
     }
 
-    public function remove($data, array $context = [])
+    /**
+     * @param User $data
+     * @param array<mixed> $context
+     * @return void
+     */
+    public function remove($data, array $context = []): void
     {
-        // TODO: Implement remove() method.
+        $this->entityManager->remove($data);
+        $this->entityManager->flush();
     }
 }
