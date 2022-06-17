@@ -36,7 +36,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                 "security" => "object == user",
                 "security_message" => "Denied permission",
             ]
-        ]
+        ],
+        denormalizationContext: ['groups' => ['write']],
+        normalizationContext: ['groups' => ['read']]
     )
 ]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -44,15 +46,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
-    #[Groups("user-info")]
+    #[Groups(["user-info", "read"])]
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 180, unique: true)]
-    #[Groups("user-info")]
+    #[Groups(["user-info", "read", "write"])]
     private string $email;
 
     #[Assert\NotBlank]
     #[SerializedName("password")]
+    #[Groups(["write"])]
     private ?string $plainPassword = null;
 
     #[ORM\Column(type: "string")]
@@ -60,11 +63,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /** @var array<string> $roles */
     #[ORM\Column(type: "json")]
+    #[Groups(["write"])]
     private array $roles = [];
 
     /** @var Collection<int, Budget> */
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Budget::class, orphanRemoval: true)]
-    #[Groups("user-info")]
+    #[Groups(["read", "write"])]
     private Collection $budget;
 
     public function __construct()
