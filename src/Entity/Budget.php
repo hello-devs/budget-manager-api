@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Action\NotFoundAction;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\BudgetRepository;
 use DateTimeImmutable;
@@ -13,10 +14,14 @@ use Doctrine\ORM\Mapping as ORM;
             "security" => "is_granted('ROLE_USER')"
         ],
         "get" => [
-            "security" => "is_granted('ROLE_USER') and object.creator == user"
+            "security" => "is_granted('ROLE_ADMIN')"
         ]
     ],
-    itemOperations: ['get']
+    itemOperations: [
+        'get' => [
+            "security" => "is_granted('ROLE_ADMIN') or object.getCreator() == user"
+        ]
+    ]
 )]
 #[ORM\Entity(repositoryClass: BudgetRepository::class)]
 class Budget
