@@ -9,8 +9,7 @@ use Symfony\Component\Security\Core\Security;
 
 class BudgetVoter extends Voter
 {
-
-    const VIEW = "BUDGET_VIEW";
+    public const VIEW = "BUDGET_VIEW";
 
     public function __construct(private readonly Security $security)
     {
@@ -25,7 +24,7 @@ class BudgetVoter extends Voter
 
     /**
      * @param string $attribute
-     * @param $subject Budget
+     * @param Budget $subject
      * @param TokenInterface $token
      * @return bool
      * @throws \Exception
@@ -50,5 +49,4 @@ class BudgetVoter extends Voter
                 throw new \Exception(sprintf('Unhandled attribute "%s"', $attribute));
         }
     }
-
 }

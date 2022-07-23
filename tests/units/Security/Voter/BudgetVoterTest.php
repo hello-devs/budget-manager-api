@@ -6,22 +6,22 @@ use App\Entity\Budget;
 use App\Entity\User;
 use App\Security\Voter\BudgetVoter;
 use PHPUnit\Framework\TestCase;
-use \Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class BudgetVoterTest extends TestCase
 {
-
     /**
-     * @param $user
-     * @param $budget
-     * @param $expectedSecurityReturn
-     * @param $expectedVote
-     * @return void
      * @dataProvider provideUserBudgetAndVote
      */
-    public function test_that_we_can_instantiate_budget_voter_class($user, $budget, $expectedSecurityReturn, $expectedVote): void
+    public function test_that_we_can_instantiate_budget_voter_class(
+        UserInterface $user,
+        Budget        $budget,
+        bool          $expectedSecurityReturn,
+        int           $expectedVote
+    ): void
     {
         //  Given
         $security = $this->createMock(Security::class);

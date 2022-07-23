@@ -41,8 +41,7 @@ class Budget
         private ?DateTimeImmutable $endDate = null,
         #[ORM\Column(type: 'integer')]
         private int                $startAmount = 0,
-    )
-    {
+    ) {
     }
 
     public function getId(): ?int

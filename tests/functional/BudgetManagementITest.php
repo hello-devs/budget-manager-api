@@ -2,7 +2,6 @@
 
 namespace Tests\functional;
 
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -11,8 +10,6 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class BudgetManagementITest extends AbstractApiTestCase
 {
-    private SerializerInterface $serializer;
-
     /**
      * @test
      * @return void
@@ -53,7 +50,8 @@ class BudgetManagementITest extends AbstractApiTestCase
         $request = $this->requestWithJwt(
             "GET",
             "/api/budgets/$createdBudgetId",
-            token: $user1Token);
+            token: $user1Token
+        );
 
         $requestedBudgetId = $request->toArray()["id"];
 
