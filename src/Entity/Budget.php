@@ -2,9 +2,9 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Action\NotFoundAction;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\BudgetRepository;
+use App\Security\Voter\BudgetVoter;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     itemOperations: [
         'get' => [
-            "security" => "is_granted('ROLE_ADMIN') or object.getCreator() == user"
+            "security" => "is_granted('" . BudgetVoter::VIEW . "', object)"
         ]
     ]
 )]
@@ -34,14 +34,15 @@ class Budget
         private string             $name,
         #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'budget')]
         #[ORM\JoinColumn(nullable: false)]
-        private User              $creator,
+        private User               $creator,
         #[ORM\Column(type: 'date_immutable')]
         private DateTimeImmutable  $startDate,
         #[ORM\Column(type: 'date_immutable', nullable: true)]
         private ?DateTimeImmutable $endDate = null,
         #[ORM\Column(type: 'integer')]
         private int                $startAmount = 0,
-    ) {
+    )
+    {
     }
 
     public function getId(): ?int
