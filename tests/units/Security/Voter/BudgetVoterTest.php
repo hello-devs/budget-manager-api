@@ -21,8 +21,7 @@ class BudgetVoterTest extends TestCase
         Budget        $budget,
         bool          $expectedSecurityReturn,
         int           $expectedVote
-    ): void
-    {
+    ): void {
         //  Given
         $security = $this->createMock(Security::class);
         $security->method('isGranted')->with('ROLE_ADMIN')->willReturn($expectedSecurityReturn);
