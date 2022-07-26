@@ -16,7 +16,7 @@ class BudgetVoterTest extends TestCase
     /**
      * @dataProvider provideUserBudgetAndVote
      */
-    public function test_that_we_can_instantiate_budget_voter_class(
+    public function test_that_voter_return_correct_vote_in_different_cases(
         UserInterface $user,
         Budget        $budget,
         bool          $expectedSecurityReturn,
@@ -42,21 +42,21 @@ class BudgetVoterTest extends TestCase
         $user1 = new User();
         $user2 = new User();
 
-        yield 'user can access' => [
+        yield 'user who create the budget can access' => [
             $user1,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new \DateTimeImmutable("2022-01-01")),
             false,
             1
         ];
 
-        yield 'user cannot access' => [
+        yield 'user who don\'t create the budget cannot access' => [
             $user1,
             new Budget(name: "unit-test-budget", creator: $user2, startDate: new \DateTimeImmutable("2022-01-01")),
             false,
             -1
         ];
 
-        yield 'user 1 as admin can' => [
+        yield 'admin can access the budget even if he isn\'t the creator' => [
             $user1,
             new Budget(name: "unit-test-budget", creator: $user2, startDate: new \DateTimeImmutable("2022-01-01")),
             true,
