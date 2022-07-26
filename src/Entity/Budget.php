@@ -20,6 +20,9 @@ use Doctrine\ORM\Mapping as ORM;
     itemOperations: [
         'get' => [
             "security" => "is_granted('" . BudgetVoter::VIEW . "', object)"
+        ],
+        'delete' => [
+            "security" => "is_granted('" . BudgetVoter::DELETE . "', object)"
         ]
     ]
 )]

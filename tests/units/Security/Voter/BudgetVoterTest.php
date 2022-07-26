@@ -20,6 +20,7 @@ class BudgetVoterTest extends TestCase
         UserInterface $user,
         Budget        $budget,
         bool          $expectedSecurityReturn,
+        string        $attributeToVoteOn,
         int           $expectedVote
     ): void {
         //  Given
@@ -30,7 +31,7 @@ class BudgetVoterTest extends TestCase
 
         //  When
         $budgetVoter = new BudgetVoter($security);
-        $vote = $budgetVoter->vote($token, $budget, [BudgetVoter::VIEW]);
+        $vote = $budgetVoter->vote($token, $budget, [$attributeToVoteOn]);
 
         //  Then
         $this->assertInstanceOf(Voter::class, $budgetVoter);
@@ -46,6 +47,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new \DateTimeImmutable("2022-01-01")),
             false,
+            BudgetVoter::VIEW,
             1
         ];
 
@@ -53,6 +55,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user2, startDate: new \DateTimeImmutable("2022-01-01")),
             false,
+            BudgetVoter::VIEW,
             -1
         ];
 
@@ -60,6 +63,15 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user2, startDate: new \DateTimeImmutable("2022-01-01")),
             true,
+            BudgetVoter::VIEW,
+            1
+        ];
+
+        yield 'user can delete is own budget' => [
+            $user1,
+            new Budget(name: "unit-test-budget", creator: $user1, startDate: new \DateTimeImmutable("2022-01-01")),
+            false,
+            BudgetVoter::DELETE,
             1
         ];
     }

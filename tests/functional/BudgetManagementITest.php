@@ -2,11 +2,13 @@
 
 namespace Tests\functional;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class BudgetManagementITest extends AbstractApiTestCase
 {
@@ -47,16 +49,40 @@ class BudgetManagementITest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(201);
 
         //When
-        $request = $this->requestWithJwt(
-            "GET",
-            "/api/budgets/$createdBudgetId",
-            token: $user1Token
-        );
+        $request = $this->getTheCreatedBudget($createdBudgetId, $user1Token);
 
         $requestedBudgetId = $request->toArray()["id"];
 
         //Then
         $this->assertResponseStatusCodeSame(200);
         $this->assertEquals($createdBudgetId, $requestedBudgetId);
+
+        //When request to delete the budget
+        $request = $this->requestWithJwt(
+            "DELETE",
+            "/api/budgets/$createdBudgetId",
+            token: $user1Token
+        );
+
+        //Then expect successful deletion
+        $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+
+        //When
+        $this->getTheCreatedBudget($createdBudgetId, $user1Token);
+
+        //Then
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     */
+    private function getTheCreatedBudget(int $budgetID, string $userToken): ResponseInterface
+    {
+        return $this->requestWithJwt(
+            "GET",
+            "/api/budgets/$budgetID",
+            token: $userToken
+        );
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Budget;
+use Exception;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
@@ -10,6 +11,7 @@ use Symfony\Component\Security\Core\Security;
 class BudgetVoter extends Voter
 {
     public const VIEW = "BUDGET_VIEW";
+    public const DELETE = "BUDGET_DELETE";
 
     public function __construct(private readonly Security $security)
     {
@@ -18,7 +20,7 @@ class BudgetVoter extends Voter
     protected function supports(string $attribute, $subject): bool
     {
         return
-            in_array($attribute, [self::VIEW]) &&
+            in_array($attribute, [self::VIEW, self::DELETE]) &&
             $subject instanceof Budget;
     }
 
@@ -27,7 +29,7 @@ class BudgetVoter extends Voter
      * @param Budget $subject
      * @param TokenInterface $token
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
@@ -40,13 +42,16 @@ class BudgetVoter extends Voter
         switch ($attribute) {
 
             case self::VIEW:
+
+            case self::DELETE:
+
                 if ($subject->getCreator() === $user) {
                     return true;
                 }
                 return false;
 
             default:
-                throw new \Exception(sprintf('Unhandled attribute "%s"', $attribute));
+                throw new Exception(sprintf('Unhandled attribute "%s"', $attribute));
         }
     }
 }
