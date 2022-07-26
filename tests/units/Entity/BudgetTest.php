@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\units;
+namespace Tests\units\Entity;
 
 use App\Entity\Budget;
 use App\Entity\User;
