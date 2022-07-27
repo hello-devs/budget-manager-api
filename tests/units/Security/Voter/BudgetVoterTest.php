@@ -5,6 +5,8 @@ namespace Tests\units\Security\Voter;
 use App\Entity\Budget;
 use App\Entity\User;
 use App\Security\Voter\BudgetVoter;
+use DateTimeImmutable;
+use Generator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -38,14 +40,14 @@ class BudgetVoterTest extends TestCase
         $this->assertEquals($expectedVote, $vote);
     }
 
-    public function provideUserBudgetAndVote(): \Generator
+    public function provideUserBudgetAndVote(): Generator
     {
         $user1 = new User();
         $user2 = new User();
 
         yield 'user who create the budget can access' => [
             $user1,
-            new Budget(name: "unit-test-budget", creator: $user1, startDate: new \DateTimeImmutable("2022-01-01")),
+            new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
             false,
             BudgetVoter::VIEW,
             1
@@ -53,7 +55,7 @@ class BudgetVoterTest extends TestCase
 
         yield 'user who don\'t create the budget cannot access' => [
             $user1,
-            new Budget(name: "unit-test-budget", creator: $user2, startDate: new \DateTimeImmutable("2022-01-01")),
+            new Budget(name: "unit-test-budget", creator: $user2, startDate: new DateTimeImmutable("2022-01-01")),
             false,
             BudgetVoter::VIEW,
             -1
@@ -61,7 +63,7 @@ class BudgetVoterTest extends TestCase
 
         yield 'admin can access the budget even if he isn\'t the creator' => [
             $user1,
-            new Budget(name: "unit-test-budget", creator: $user2, startDate: new \DateTimeImmutable("2022-01-01")),
+            new Budget(name: "unit-test-budget", creator: $user2, startDate: new DateTimeImmutable("2022-01-01")),
             true,
             BudgetVoter::VIEW,
             1
@@ -69,8 +71,24 @@ class BudgetVoterTest extends TestCase
 
         yield 'user can delete is own budget' => [
             $user1,
-            new Budget(name: "unit-test-budget", creator: $user1, startDate: new \DateTimeImmutable("2022-01-01")),
+            new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
             false,
+            BudgetVoter::DELETE,
+            1
+        ];
+
+        yield 'user cannot delete budget of other user' => [
+            $user1,
+            new Budget(name: "unit-test-budget", creator: $user2, startDate: new DateTimeImmutable("2022-01-01")),
+            false,
+            BudgetVoter::DELETE,
+            -1
+        ];
+
+        yield 'user as admin can delete budgets' => [
+            $user2,
+            new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
+            true,
             BudgetVoter::DELETE,
             1
         ];
