@@ -42,20 +42,37 @@ class BudgetManagementITest extends AbstractApiTestCase
             $user1Token,
             $budgetData
         );
-
         $createdBudgetId = $postResponse->toArray()["id"];
 
         //then
         $this->assertResponseStatusCodeSame(201);
 
-        //When
+        //When request the created budget
         $request = $this->getTheCreatedBudget($createdBudgetId, $user1Token);
-
         $requestedBudgetId = $request->toArray()["id"];
 
         //Then
         $this->assertResponseStatusCodeSame(200);
         $this->assertEquals($createdBudgetId, $requestedBudgetId);
+
+        //When request budget update
+        $budgetData["name"] = "budget-edited-name";
+        $updateRequest = $this->requestWithJwt(
+            method: "PUT",
+            url: "/api/budgets/$createdBudgetId",
+            token: $user1Token,
+            json: $budgetData
+        );
+
+        $updateResponse = $updateRequest->toArray();
+        $updatedName = $updateResponse["name"];
+        $updatedBudgetId = $updateResponse["id"];
+
+        //Then expect only name change
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame("budget-edited-name", $updatedName);
+        $this->assertSame($requestedBudgetId, $updatedBudgetId);
+
 
         //When request to delete the budget
         $request = $this->requestWithJwt(

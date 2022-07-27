@@ -21,6 +21,9 @@ use Doctrine\ORM\Mapping as ORM;
         'get' => [
             "security" => "is_granted('" . BudgetVoter::VIEW . "', object)"
         ],
+        'put' => [
+            "security" => "is_granted('" . BudgetVoter::UPDATE . "', object)"
+        ],
         'delete' => [
             "security" => "is_granted('" . BudgetVoter::DELETE . "', object)"
         ]
