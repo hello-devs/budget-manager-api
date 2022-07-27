@@ -28,7 +28,7 @@ class Budget {
 class Transaction {
 
     - id: int
-    - amount: int (FK)
+    - amount: int
 }
 
 class BudgetTransaction {
