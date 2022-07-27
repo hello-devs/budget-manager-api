@@ -45,6 +45,7 @@ class BudgetVoterTest extends TestCase
         $user1 = new User();
         $user2 = new User();
 
+        //VIEW
         yield 'user who create the budget can access' => [
             $user1,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
@@ -69,6 +70,7 @@ class BudgetVoterTest extends TestCase
             1
         ];
 
+        //DELETION
         yield 'user can delete is own budget' => [
             $user1,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
@@ -90,6 +92,31 @@ class BudgetVoterTest extends TestCase
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
             true,
             BudgetVoter::DELETE,
+            1
+        ];
+
+        //UPDATE
+        yield 'user can update is own budget' => [
+            $user1,
+            new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
+            false,
+            BudgetVoter::UPDATE,
+            1
+        ];
+
+        yield 'user cannot update budget of other user' => [
+            $user1,
+            new Budget(name: "unit-test-budget", creator: $user2, startDate: new DateTimeImmutable("2022-01-01")),
+            false,
+            BudgetVoter::UPDATE,
+            -1
+        ];
+
+        yield 'user as admin can update budgets' => [
+            $user2,
+            new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
+            true,
+            BudgetVoter::UPDATE,
             1
         ];
     }

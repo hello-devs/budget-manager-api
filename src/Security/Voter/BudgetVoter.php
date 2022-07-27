@@ -12,6 +12,7 @@ class BudgetVoter extends Voter
 {
     public const VIEW = "BUDGET_VIEW";
     public const DELETE = "BUDGET_DELETE";
+    public const UPDATE = "BUDGET_UPDATE";
 
     public function __construct(private readonly Security $security)
     {
@@ -20,7 +21,7 @@ class BudgetVoter extends Voter
     protected function supports(string $attribute, $subject): bool
     {
         return
-            in_array($attribute, [self::VIEW, self::DELETE]) &&
+            in_array($attribute, [self::VIEW, self::DELETE, self::UPDATE]) &&
             $subject instanceof Budget;
     }
 
@@ -42,7 +43,7 @@ class BudgetVoter extends Voter
         switch ($attribute) {
 
             case self::VIEW:
-
+            case self::UPDATE:
             case self::DELETE:
 
                 if ($subject->getCreator() === $user) {
