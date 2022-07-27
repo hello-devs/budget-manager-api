@@ -21,7 +21,7 @@ class BudgetRepository extends ServiceEntityRepository
         parent::__construct($registry, Budget::class);
     }
 
-    public function add(BudgetRepository $entity, bool $flush = false): void
+    public function add(Budget $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class BudgetRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(BudgetRepository $entity, bool $flush = false): void
+    public function remove(Budget $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -40,7 +40,7 @@ class BudgetRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return BudgetRepository[] Returns an array of BudgetByMaker objects
+//     * @return Budget[] Returns an array of Budget objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -54,7 +54,7 @@ class BudgetRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?BudgetRepository
+//    public function findOneBySomeField($value): ?Budget
 //    {
 //        return $this->createQueryBuilder('b')
 //            ->andWhere('b.exampleField = :val')
