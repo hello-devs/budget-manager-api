@@ -5,6 +5,7 @@ namespace App\Entity;
 class Transaction
 {
     public function __construct(
+        private readonly User $creator,
         private readonly ?int $id = null,
         private int $amount = 0
     ) {
@@ -13,6 +14,14 @@ class Transaction
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return User
+     */
+    public function getCreator(): User
+    {
+        return $this->creator;
     }
 
     /**
@@ -33,4 +42,6 @@ class Transaction
 
         return $this;
     }
+
+
 }

@@ -28,6 +28,7 @@ class Budget {
 class Transaction {
 
     - id: int
+    - creator: User
     - amount: int
 }
 
