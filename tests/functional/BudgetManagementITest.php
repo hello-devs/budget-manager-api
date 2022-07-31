@@ -2,6 +2,7 @@
 
 namespace Tests\functional;
 
+use App\Entity\Budget;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -30,12 +31,19 @@ class BudgetManagementITest extends AbstractApiTestCase
         $budgetData = [
             "name" => "budget-name",
             "startDate" => date("Y-m-01"),
-            "startAmount" => 10000,
+            "startAmount" => 10_000,
             "creator" => "/api/users/$user1Id"
         ];
-
-        //When
+        $firstTransactionData = [
+            "creator" => "/api/users/$user1Id",
+            "amount" => 5_000
+        ];
         $user1Token = $this->getToken("/get_token", ["email" => $user1Email, "password" => $user1Password]);
+
+        /*
+         * When we request to create a budget
+         * with a valid user token
+         */
         $postResponse = $this->requestWithJwt(
             "POST",
             "/api/budgets",
@@ -47,7 +55,11 @@ class BudgetManagementITest extends AbstractApiTestCase
         //then
         $this->assertResponseStatusCodeSame(201);
 
-        //When request the created budget
+        /*
+         * When we request the created budget
+         * with the token of the creator
+         * and with the id of the budget
+         */
         $request = $this->getTheCreatedBudget($createdBudgetId, $user1Token);
         $requestedBudgetId = $request->toArray()["id"];
 
@@ -55,7 +67,13 @@ class BudgetManagementITest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertEquals($createdBudgetId, $requestedBudgetId);
 
-        //When request budget update
+        /*
+         * When we request budget update
+         * changing the name of the budget
+         * with PUT method
+         * and putting all budget in json
+         *
+         */
         $budgetData["name"] = "budget-edited-name";
         $updateRequest = $this->requestWithJwt(
             method: "PUT",
@@ -73,8 +91,9 @@ class BudgetManagementITest extends AbstractApiTestCase
         $this->assertSame("budget-edited-name", $updatedName);
         $this->assertSame($requestedBudgetId, $updatedBudgetId);
 
-
-        //When request to delete the budget
+        /*
+         * When request to delete the budget
+         */
         $request = $this->requestWithJwt(
             "DELETE",
             "/api/budgets/$createdBudgetId",
