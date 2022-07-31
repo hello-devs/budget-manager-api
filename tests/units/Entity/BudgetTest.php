@@ -19,7 +19,7 @@ class BudgetTest extends TestCase
         $startDate = date_create_immutable("2022-05-01");
 
         //  When
-        $budget = new Budget(name: $budgetName, startDate: $startDate, creator: $user);
+        $budget = new Budget(name: $budgetName, creator: $user, startDate: $startDate);
 
         //  Then
         $this->assertInstanceOf(Budget::class, $budget);
