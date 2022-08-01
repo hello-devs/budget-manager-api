@@ -71,9 +71,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["read", "write"])]
     private Collection $budget;
 
+    /** @var Collection<int, Transaction> */
+    #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Transaction::class, orphanRemoval: true)]
+    #[Groups(["read", "write"])]
+    private Collection $transaction;
+
     public function __construct()
     {
         $this->budget = new ArrayCollection();
+        $this->transaction = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -175,5 +181,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getBudget(): Collection
     {
         return $this->budget;
+    }
+
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getTransaction(): Collection
+    {
+        return $this->transaction;
     }
 }

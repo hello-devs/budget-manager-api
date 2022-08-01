@@ -3,6 +3,7 @@
 namespace Tests\units\Entity;
 
 use App\Entity\User;
+use Doctrine\Common\Collections\Collection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
@@ -50,6 +51,10 @@ class UserTest extends TestCase
         $this->assertContains('ROLE_TESTER', $roles, "User don't have expected ROLE_TESTER");
         $this->assertContains('ROLE_USER', $roles, "User don't have expected role ROLE_USER");
         $this->assertNull($id);
+        $this->assertEmpty($user->getTransaction());
+        $this->assertEmpty($user->getBudget());
+        $this->assertInstanceOf(Collection::class, $user->getBudget());
+        $this->assertInstanceOf(Collection::class, $user->getTransaction());
     }
 
     protected function setUp(): void
