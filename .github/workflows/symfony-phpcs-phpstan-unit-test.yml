@@ -50,7 +50,7 @@ jobs:
       - name: generate lexik key
         run: bin/console lexik:jwt:generate-keypair --skip-if-exists
       - name: Run tests
-        run: bin/phpunit --coverage-text
+        run: ./vendor/bin/pest --coverage
         env:
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
   symfony-quality:

@@ -1,4 +1,4 @@
-@startuml
+@startuml "general class diagram"
 'https://plantuml.com/class-diagram
 !theme cerulean-outline
 skinparam backgroundColor white
@@ -36,8 +36,8 @@ class BudgetTransaction {
 
     - id: int
     - createdAt: DateTime
-    - isNegative: ?bool
-    - isRecurrent: ?bool
+    - isNegative: bool
+    - isRecurrent: bool
     - transactionId: int (FK)
     - budgetId: int (FK)
 }
