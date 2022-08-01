@@ -2,12 +2,21 @@
 
 namespace App\Entity;
 
+use App\Repository\TransactionRepository;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
+    private ?int $id = null;
+
     public function __construct(
+        #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'transaction')]
+        #[ORM\JoinColumn(nullable: false)]
         private readonly User $creator,
-        private readonly ?int $id = null,
-        private int $amount = 0
+        #[ORM\Column(type: 'integer')]
+        private int           $amount = 0
     ) {
     }
 
