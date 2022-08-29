@@ -7,10 +7,10 @@ class BudgetTransaction
     private ?int $id = null;
 
     public function __construct(
-        private readonly Budget $budget,
+        private readonly Budget      $budget,
         private readonly Transaction $transaction,
-        private bool $isNegative = false,
-        private bool $isRecurrent = false
+        private bool                 $isNegative = false,
+        private bool                 $isRecurrent = false
     ) {
     }
 
@@ -43,5 +43,19 @@ class BudgetTransaction
     public function isRecurrent(): bool
     {
         return $this->isRecurrent;
+    }
+
+    public function setNegative(): self
+    {
+        $this->isNegative = true;
+
+        return $this;
+    }
+
+    public function setPositive(): self
+    {
+        $this->isNegative = false;
+
+        return $this;
     }
 }
