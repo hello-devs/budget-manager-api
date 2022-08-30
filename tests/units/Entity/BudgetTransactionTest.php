@@ -11,15 +11,16 @@ use PHPUnit\Framework\TestCase;
 class BudgetTransactionTest extends TestCase
 {
     /** @test */
-    public function we_can_instantiate_BudgetTransaction_with_budget_and_transaction_object(): void
+    public function we_can_instantiate_BudgetTransaction_with_budget_transaction_object_and_impactDate(): void
     {
         //Given
         $creator = new User();
         $transaction = new Transaction($creator);
         $budget = new Budget("budget transaction test", $creator, date_create_immutable("2022-05-01"));
+        $impactDate = date_create_immutable("2022-05-01");
 
         //When
-        $budgetTransaction = new BudgetTransaction(budget: $budget, transaction: $transaction);
+        $budgetTransaction = new BudgetTransaction(budget: $budget, transaction: $transaction, impactDate: $impactDate);
         $transactionInClass = $budgetTransaction->getTransaction();
         $budgetInClass = $budgetTransaction->getBudget();
 
@@ -40,9 +41,10 @@ class BudgetTransactionTest extends TestCase
         $creator = new User();
         $transaction = new Transaction($creator);
         $budget = new Budget("budget transaction test", $creator, date_create_immutable("2022-05-01"));
+        $impactDate = date_create_immutable("2022-05-01");
 
         //When
-        $budgetTransaction = new BudgetTransaction(budget: $budget, transaction: $transaction);
+        $budgetTransaction = new BudgetTransaction(budget: $budget, transaction: $transaction, impactDate: $impactDate);
         $methodReturn = $budgetTransaction->setNegative();
 
         //Then
@@ -57,13 +59,35 @@ class BudgetTransactionTest extends TestCase
         $creator = new User();
         $transaction = new Transaction($creator);
         $budget = new Budget("budget transaction test", $creator, date_create_immutable("2022-05-01"));
+        $impactDate = date_create_immutable("2022-05-01");
 
         //When
-        $budgetTransaction = new BudgetTransaction(budget: $budget, transaction: $transaction, isNegative: true);
+        $budgetTransaction = new BudgetTransaction(budget: $budget, transaction: $transaction, impactDate: $impactDate, isNegative: true);
         $methodReturn = $budgetTransaction->setPositive();
 
         //Then
         $this->assertTrue($budgetTransaction->isPositive());
         $this->assertEquals($budgetTransaction, $methodReturn);
+    }
+
+    /** @test */
+    public function we_can_set_impactDate(): void
+    {
+        //Given
+        $creator = new User();
+        $transaction = new Transaction($creator);
+        $budget = new Budget("budget transaction test", $creator, date_create_immutable("2022-05-01"));
+        $impactDate = date_create_immutable("2022-05-01");
+        $newImpactDate = date_create_immutable("2022-05-31");
+
+        //When
+        $budgetTransaction = new BudgetTransaction(budget: $budget, transaction: $transaction, impactDate: $impactDate);
+        $methodReturn = $budgetTransaction->setImpactDate($newImpactDate);
+        $impactDateInClass = $budgetTransaction->getImpactDate();
+
+        //Then
+        $this->assertTrue($budgetTransaction->isPositive());
+        $this->assertEquals($budgetTransaction, $methodReturn);
+        $this->assertEquals($newImpactDate, $impactDateInClass);
     }
 }

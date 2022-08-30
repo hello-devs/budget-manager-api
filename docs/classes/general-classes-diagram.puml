@@ -35,11 +35,11 @@ class Transaction {
 class BudgetTransaction {
 
     - id: int
-    - createdAt: DateTime
+    - transaction: Transaction
+    - budget: Budget
+    - impactDate: DateTime
     - isNegative: bool
     - isRecurrent: bool
-    - transactionId: int (FK)
-    - budgetId: int (FK)
 }
 
 @enduml

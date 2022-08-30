@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use DateTimeImmutable;
+
 class BudgetTransaction
 {
     private ?int $id = null;
@@ -9,6 +11,7 @@ class BudgetTransaction
     public function __construct(
         private readonly Budget      $budget,
         private readonly Transaction $transaction,
+        private DateTimeImmutable $impactDate,
         private bool                 $isNegative = false,
         private bool                 $isRecurrent = false
     ) {
@@ -57,5 +60,17 @@ class BudgetTransaction
         $this->isNegative = false;
 
         return $this;
+    }
+
+    public function setImpactDate(DateTimeImmutable $newImpactDate): self
+    {
+        $this->impactDate = $newImpactDate;
+
+        return $this;
+    }
+
+    public function getImpactDate(): DateTimeImmutable
+    {
+        return $this->impactDate;
     }
 }
