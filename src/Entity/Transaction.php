@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TransactionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
@@ -11,6 +13,10 @@ class Transaction
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    /** @var Collection<int, BudgetTransaction> */
+    #[ORM\OneToMany(mappedBy: 'transaction', targetEntity: BudgetTransaction::class, orphanRemoval: true)]
+    private Collection   $budgetTransaction;
+
     public function __construct(
         #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'transaction')]
         #[ORM\JoinColumn(nullable: false)]
@@ -18,6 +24,7 @@ class Transaction
         #[ORM\Column(type: 'integer')]
         private int           $amount = 0
     ) {
+        $this->budgetTransaction = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -50,5 +57,13 @@ class Transaction
         $this->amount = $amount;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, BudgetTransaction>
+     */
+    public function getBudgetTransaction(): Collection
+    {
+        return $this->budgetTransaction;
     }
 }

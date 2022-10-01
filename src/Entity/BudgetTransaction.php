@@ -2,17 +2,40 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Repository\BudgetTransactionRepository;
 use DateTimeImmutable;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ApiResource(
+    collectionOperations: [
+        "post" => [
+        ]
+    ],
+    itemOperations: [
+        "get" => [
+            "security" => "is_granted('ROLE_ADMIN')"
+        ]
+    ]
+)]
+#[ORM\Entity(repositoryClass: BudgetTransactionRepository::class)]
 class BudgetTransaction
 {
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     public function __construct(
+        #[ORM\ManyToOne(targetEntity: Budget::class, inversedBy: 'budgetTransaction')]
+        #[ORM\JoinColumn(nullable: false)]
         private readonly Budget      $budget,
+        #[ORM\ManyToOne(targetEntity: Transaction::class, cascade: ["persist"], inversedBy: 'budgetTransaction')]
+        #[ORM\JoinColumn(nullable: false)]
         private readonly Transaction $transaction,
-        private DateTimeImmutable $impactDate,
+        #[ORM\Column('date_immutable')]
+        private DateTimeImmutable    $impactDate,
+        #[ORM\Column(type: 'boolean')]
         private bool                 $isNegative = false,
+        #[ORM\Column(type: 'boolean')]
         private bool                 $isRecurrent = false
     ) {
     }

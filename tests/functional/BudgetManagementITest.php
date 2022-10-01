@@ -2,7 +2,6 @@
 
 namespace Tests\functional;
 
-use App\Entity\Budget;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -34,10 +33,7 @@ class BudgetManagementITest extends AbstractApiTestCase
             "startAmount" => 10_000,
             "creator" => "/api/users/$user1Id"
         ];
-        $firstTransactionData = [
-            "creator" => "/api/users/$user1Id",
-            "amount" => 5_000
-        ];
+
         $user1Token = $this->getToken("/get_token", ["email" => $user1Email, "password" => $user1Password]);
 
         /*
@@ -89,7 +85,37 @@ class BudgetManagementITest extends AbstractApiTestCase
         //Then expect only name change
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame("budget-edited-name", $updatedName);
+        $this->assertSame($budgetData['startAmount'], $updateResponse['startAmount']);
         $this->assertSame($requestedBudgetId, $updatedBudgetId);
+
+
+        /*
+         * When we request budget update
+         * changing the name of the budget
+         * with PUT method
+         * and putting all budget in json
+         *
+         */
+        $transactionAmount = 500;
+        $budgetTransactionRequest = $this->requestWithJwt(
+            method: "POST",
+            url: "/api/budget_transactions",
+            token: $user1Token,
+            json: [
+                "budget" => "/api/budgets/".$createdBudgetId,
+                "transaction" => [
+                    "creator" => "api/users/".$user1Id, //Todo set user with $token (server side)
+                    "amount" => $transactionAmount
+                ],
+                "impactDate" => "20220501"
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(201);
+
+
+
+
 
         /*
          * When request to delete the budget

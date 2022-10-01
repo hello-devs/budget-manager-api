@@ -6,6 +6,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\BudgetRepository;
 use App\Security\Voter\BudgetVoter;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(
@@ -35,6 +37,11 @@ class Budget
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    /** @var Collection<int, BudgetTransaction> */
+    #[ORM\OneToMany(mappedBy: 'budget', targetEntity: BudgetTransaction::class, orphanRemoval: true)]
+    private Collection $budgetTransaction;
+
+
     public function __construct(
         #[ORM\Column(type: 'string', length: 255)]
         private string             $name,
@@ -48,6 +55,7 @@ class Budget
         #[ORM\Column(type: 'integer')]
         private int                $startAmount = 0,
     ) {
+        $this->budgetTransaction = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -113,5 +121,13 @@ class Budget
         $this->startAmount = $startAmount;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, BudgetTransaction>
+     */
+    public function getBudgetTransaction(): Collection
+    {
+        return $this->budgetTransaction;
     }
 }
