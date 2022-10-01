@@ -4,17 +4,19 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\BudgetTransactionRepository;
+use App\Security\Voter\BudgetTransactionVoter;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(
     collectionOperations: [
         "post" => [
+            "security_post_denormalize" => "is_granted('" . BudgetTransactionVoter::CREATE . "', object)"
         ]
     ],
     itemOperations: [
         "get" => [
-            "security" => "is_granted('ROLE_ADMIN')"
+            "security" => "is_granted('" . BudgetTransactionVoter::VIEW . "', object)"
         ]
     ]
 )]
