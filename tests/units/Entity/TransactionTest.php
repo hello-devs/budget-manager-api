@@ -14,7 +14,8 @@ class TransactionTest extends TestCase
         $user = new User();
 
         //When
-        $transaction = new Transaction(creator: $user);
+        $transaction = new Transaction();
+        $transaction->setCreator($user);
         $transactionId = $transaction->getId();
         $creator = $transaction->getCreator();
         $transactionAmount = $transaction->getAmount();
