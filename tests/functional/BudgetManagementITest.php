@@ -102,19 +102,16 @@ class BudgetManagementITest extends AbstractApiTestCase
             url: "/api/budget_transactions",
             token: $user1Token,
             json: [
-                "budget" => "/api/budgets/".$createdBudgetId,
+                "budget" => "/api/budgets/" . $createdBudgetId,
                 "transaction" => [
-                    "creator" => "api/users/".$user1Id, //Todo set user with $token (server side)
                     "amount" => $transactionAmount
                 ],
                 "impactDate" => "20220501"
             ]
         );
 
+        //Then
         $this->assertResponseStatusCodeSame(201);
-
-
-
 
 
         /*

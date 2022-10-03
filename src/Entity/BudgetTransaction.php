@@ -7,16 +7,20 @@ use App\Repository\BudgetTransactionRepository;
 use App\Security\Voter\BudgetTransactionVoter;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     collectionOperations: [
         "post" => [
-            "security_post_denormalize" => "is_granted('" . BudgetTransactionVoter::CREATE . "', object)"
+            "security_post_denormalize" => "is_granted('" . BudgetTransactionVoter::CREATE . "', object)",
+            "denormalization_context" => ["groups" => "budget-transaction:write"],
+            "normalization_context" => ["groups" => "budget-transaction:read"]
         ]
     ],
     itemOperations: [
         "get" => [
-            "security" => "is_granted('" . BudgetTransactionVoter::VIEW . "', object)"
+            "security" => "is_granted('" . BudgetTransactionVoter::VIEW . "', object)",
+            "normalization_context" => ["groups" => "budget-transaction:read"]
         ]
     ]
 )]
@@ -24,20 +28,26 @@ use Doctrine\ORM\Mapping as ORM;
 class BudgetTransaction
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
+    #[Groups(["budget-transaction:read", "budget-transaction:write"])]
     private ?int $id = null;
 
     public function __construct(
         #[ORM\ManyToOne(targetEntity: Budget::class, inversedBy: 'budgetTransaction')]
         #[ORM\JoinColumn(nullable: false)]
+        #[Groups(["budget-transaction:read", "budget-transaction:write"])]
         private readonly Budget      $budget,
         #[ORM\ManyToOne(targetEntity: Transaction::class, cascade: ["persist"], inversedBy: 'budgetTransaction')]
         #[ORM\JoinColumn(nullable: false)]
+        #[Groups(["budget-transaction:read", "budget-transaction:write"])]
         private readonly Transaction $transaction,
         #[ORM\Column('date_immutable')]
+        #[Groups(["budget-transaction:read", "budget-transaction:write"])]
         private DateTimeImmutable    $impactDate,
         #[ORM\Column(type: 'boolean')]
+        #[Groups(["budget-transaction:read", "budget-transaction:write"])]
         private bool                 $isNegative = false,
         #[ORM\Column(type: 'boolean')]
+        #[Groups(["budget-transaction:read", "budget-transaction:write"])]
         private bool                 $isRecurrent = false
     ) {
     }

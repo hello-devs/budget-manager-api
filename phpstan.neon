@@ -12,3 +12,4 @@ parameters:
   #
   doctrine:
     objectManagerLoader: tests/object-manager.php
+    #allowNullablePropertyForRequiredField: true

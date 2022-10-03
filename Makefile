@@ -33,7 +33,6 @@ database-init-test: ## Init database for test
 	$(SYMFONY_CONSOLE) d:f:l --no-interaction --env=test
 
 unit-test: ## Run unit tests
-	$(MAKE) database-init-test
 	$(PHP) vendor/bin/pest --testdox tests/units/
 
 functional-test: ## Run functional tests
