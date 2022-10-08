@@ -19,31 +19,27 @@ skinparam rectangle{
 left to right direction
 '----------------------------------------------
 
+actor :ADMIN: as ADM
 actor :User: as U
-actor :API ADMIN: as ADM
-actor :BUDGET MANAGER: as BM
 
-ADM -> (manage resource user CRUD)
+ADM -> (manage resource "User" CRUD)
 
-U -> ([v] can authenticate)
-U -> (can reset password)
-
-
+rectangle USER{
+    U -> ([v] can authenticate)
+    U -> ([v] can update password)
+}
 
 rectangle BUDGET{
-    BM --> (can see a list of his budgets)
-    BM --> (create Budget)
-    BM --> (can see current budgets balances)
-    BM --> (can see the expected budgets balances)
-    BM --> (can delete Budget)
-    BM --> (can see a list of operations relative to Budget)
+    U --> ([v] create Budget)
+    U --> (can see a list of his budgets)
+    U --> (can see current budgets balances)
+    U --> (can see the expected budgets balances)
+    U --> (can delete Budget)
+    U --> (can see a list of operations relative to Budget)
 }
 rectangle TRANSACTION{
- BM --> (create Transaction)
- BM --> (can add expenses to the budget)
- BM --> (can add money to the budget )
- BM --> (can create recurring operation list)
- BM --> (can add Transaction to Recurring operations List)
+ U --> ([v] can add expenses to the budget)
+ U --> ([v] can add money to the budget)
 }
 
 
