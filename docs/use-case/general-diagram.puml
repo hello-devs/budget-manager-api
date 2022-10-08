@@ -31,7 +31,7 @@ rectangle USER{
 
 rectangle BUDGET{
     U --> ([v] create Budget)
-    U --> (can see a list of his budgets)
+    U --> ([v] can see a list of his budgets)
     U --> (can see current budgets balances)
     U --> (can see the expected budgets balances)
     U --> (can delete Budget)
