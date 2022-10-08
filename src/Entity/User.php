@@ -68,7 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /** @var Collection<int, Budget> */
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Budget::class, orphanRemoval: true)]
-    #[Groups(["read", "write"])]
+    #[Groups(["user-info","read", "write"])]
     private Collection $budget;
 
     /** @var Collection<int, Transaction> */

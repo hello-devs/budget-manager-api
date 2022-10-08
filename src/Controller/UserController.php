@@ -19,6 +19,6 @@ class UserController extends AbstractController
             return new JsonResponse(status: 403);
         }
 
-        return new JsonResponse(data: $serializer->serialize($user, "json"), json: true);
+        return new JsonResponse(data: $serializer->serialize($user, "json",["groups"=>["user-info"]]), json: true);
     }
 }
