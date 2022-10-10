@@ -18,7 +18,7 @@ class BudgetTransactionVoter extends Voter
     {
     }
 
-    protected function supports(string $attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return in_array($attribute, [self::CREATE, self::VIEW]) && $subject instanceof BudgetTransaction;
     }

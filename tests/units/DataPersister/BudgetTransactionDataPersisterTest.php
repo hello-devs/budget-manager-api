@@ -10,6 +10,8 @@ use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class BudgetTransactionDataPersisterTest extends TestCase
@@ -20,7 +22,7 @@ class BudgetTransactionDataPersisterTest extends TestCase
         $security = $this->createMock(Security::class);
         $entityManager = $this->createMock(EntityManager::class);
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method("validate")->willReturn([]);
+        $validator->method("validate")->willReturn(new ConstraintViolationList([]));
 
         $budgetTransactionDT = new BudgetTransactionDataPersister($security, $entityManager, $validator);
 
@@ -40,7 +42,9 @@ class BudgetTransactionDataPersisterTest extends TestCase
         $entityManager = $this->createMock(EntityManager::class);
 
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method("validate")->willReturn(["Constraint violation"]);
+        $validator->method("validate")->willReturn(
+            new ConstraintViolationList([$this->createMock(ConstraintViolation::class)])
+        );
 
         $budgetTransaction = $this->createMock(BudgetTransaction::class);
 

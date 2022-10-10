@@ -18,7 +18,7 @@ class BudgetVoter extends Voter
     {
     }
 
-    protected function supports(string $attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return
             in_array($attribute, [self::VIEW, self::DELETE, self::UPDATE]) &&
