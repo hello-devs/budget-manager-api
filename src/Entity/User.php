@@ -2,8 +2,14 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Dto\UserCreationDto;
 use App\Repository\UserRepository;
+use App\State\UserCreationProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,34 +19,24 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[
-    ORM\Entity(repositoryClass: UserRepository::class),
-    ORM\Table(name: "`user`"),
-    ApiResource(
-        collectionOperations: [
-            "get" => [
-                "security" => "is_granted('ROLE_ADMIN')",
-                "security_message" => "Only admins can get users lists.",
-            ],
-            "post" => [
-                "security" => "is_granted('ROLE_CLIENT')",
-                "security_message" => "Only admins can create user",
-            ]
-        ],
-        itemOperations: [
-            "get" => [
-                "security" => "is_granted('ROLE_CLIENT')",
-                "security_message" => "Only admins can get users lists.",
-            ],
-            "put" => [
-                "security" => "object == user",
-                "security_message" => "Denied permission",
-            ]
-        ],
-        denormalizationContext: ['groups' => ['write']],
-        normalizationContext: ['groups' => ['read']]
-    )
+#[ApiResource(
+    operations: [
+        new Get(security: 'is_granted("ROLE_ADMIN")', securityMessage: 'Only admins can get users lists.'),
+        new Put(security: 'object == user', securityMessage: 'Denied permission'),
+        new GetCollection(security: 'is_granted("ROLE_ADMIN")', securityMessage: 'Only admins can get users lists.'),
+        new Post(
+            security: 'is_granted("ROLE_CLIENT")',
+            securityMessage: 'Only authorized role can create user',
+            input: UserCreationDto::class,
+            processor: UserCreationProcessor::class
+        )
+    ],
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']]
+)
 ]
+#[ORM\Table(name: "`user`"), ]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -48,29 +44,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: "integer")]
     #[Groups(["user-info", "read"])]
     private ?int $id = null;
-
+    #[Assert\NotBlank]
     #[ORM\Column(type: "string", length: 180, unique: true)]
     #[Groups(["user-info", "read", "write"])]
     private string $email;
-
-    #[Assert\NotBlank]
     #[SerializedName("password")]
     #[Groups(["write"])]
     private ?string $plainPassword = null;
-
+    #[Assert\NotBlank]
     #[ORM\Column(type: "string")]
     private string $password;
-
     /** @var array<string> $roles */
     #[ORM\Column(type: "json")]
     #[Groups(["write"])]
     private array $roles = [];
-
     /** @var Collection<int, Budget> */
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Budget::class, orphanRemoval: true)]
-    #[Groups(["user-info","read", "write"])]
+    #[Groups(["user-info", "read", "write"])]
     private Collection $budget;
-
     /** @var Collection<int, Transaction> */
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Transaction::class, orphanRemoval: true)]
     #[Groups(["read", "write"])]
@@ -137,7 +128,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -145,7 +135,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->roles[] = 'ROLE_USER';
         $this->roles = array_unique($this->roles);
-
         return $this->roles;
     }
 
@@ -156,7 +145,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
-
         return $this;
     }
 

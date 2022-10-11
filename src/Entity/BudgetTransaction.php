@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use App\Repository\BudgetTransactionRepository;
 use App\Security\Voter\BudgetTransactionVoter;
 use DateTimeImmutable;
@@ -10,18 +12,16 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
-    collectionOperations: [
-        "post" => [
-            "security_post_denormalize" => "is_granted('" . BudgetTransactionVoter::CREATE . "', object)",
-            "denormalization_context" => ["groups" => "budget-transaction:write"],
-            "normalization_context" => ["groups" => "budget-transaction:read"]
-        ]
-    ],
-    itemOperations: [
-        "get" => [
-            "security" => "is_granted('" . BudgetTransactionVoter::VIEW . "', object)",
-            "normalization_context" => ["groups" => "budget-transaction:read"]
-        ]
+    operations: [
+        new Get(
+            normalizationContext: ['groups' => 'budget-transaction:read'],
+            security: 'is_granted("' . BudgetTransactionVoter::VIEW . '", object)'
+        ),
+        new Post(
+            normalizationContext: ['groups' => 'budget-transaction:read'],
+            denormalizationContext: ['groups' => 'budget-transaction:write'],
+            securityPostDenormalize: 'is_granted("' . BudgetTransactionVoter::CREATE . '", object)'
+        )
     ]
 )]
 #[ORM\Entity(repositoryClass: BudgetTransactionRepository::class)]
@@ -51,7 +51,6 @@ class BudgetTransaction
         private bool                 $isRecurrent = false
     ) {
     }
-
 
     public function getId(): int|null
     {
@@ -86,21 +85,18 @@ class BudgetTransaction
     public function setNegative(): self
     {
         $this->isNegative = true;
-
         return $this;
     }
 
     public function setPositive(): self
     {
         $this->isNegative = false;
-
         return $this;
     }
 
     public function setImpactDate(DateTimeImmutable $newImpactDate): self
     {
         $this->impactDate = $newImpactDate;
-
         return $this;
     }
 

@@ -2,9 +2,13 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\BudgetRepository;
-use App\Security\Voter\BudgetVoter;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,36 +16,21 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
-    collectionOperations: [
-        "post" => [
-            "security" => "is_granted('ROLE_USER')"
-        ],
-        "get" => [
-            "security" => "is_granted('ROLE_ADMIN')"
-        ]
-    ],
-    itemOperations: [
-        'get' => [
-            "security" => "is_granted('" . BudgetVoter::VIEW . "', object)"
-        ],
-        'put' => [
-            "security" => "is_granted('" . BudgetVoter::UPDATE . "', object)"
-        ],
-        'delete' => [
-            "security" => "is_granted('" . BudgetVoter::DELETE . "', object)"
-        ]
-    ]
+    operations: [
+        new Get(security: 'is_granted(\'BUDGET_VIEW\', object)'),
+        new Put(security: 'is_granted(\'BUDGET_UPDATE\', object)'),
+        new Delete(security: 'is_granted(\'BUDGET_DELETE\', object)'),
+        new Post(security: 'is_granted(\'ROLE_USER\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_ADMIN\')')]
 )]
 #[ORM\Entity(repositoryClass: BudgetRepository::class)]
 class Budget
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
     private ?int $id = null;
-
     /** @var Collection<int, BudgetTransaction> */
     #[ORM\OneToMany(mappedBy: 'budget', targetEntity: BudgetTransaction::class, orphanRemoval: true)]
     private Collection $budgetTransaction;
-
 
     public function __construct(
         #[ORM\Column(type: 'string', length: 255)]
@@ -56,7 +45,7 @@ class Budget
         #[ORM\Column(type: 'date_immutable', nullable: true)]
         private ?DateTimeImmutable $endDate = null,
         #[ORM\Column(type: 'integer')]
-        private int                $startAmount = 0,
+        private int                $startAmount = 0
     ) {
         $this->budgetTransaction = new ArrayCollection();
     }
@@ -74,7 +63,6 @@ class Budget
     public function setName(string $name): self
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -86,7 +74,6 @@ class Budget
     public function setCreator(User $creator): self
     {
         $this->creator = $creator;
-
         return $this;
     }
 
@@ -98,7 +85,6 @@ class Budget
     public function setStartDate(DateTimeImmutable $startDate): self
     {
         $this->startDate = $startDate;
-
         return $this;
     }
 
@@ -110,7 +96,6 @@ class Budget
     public function setEndDate(?DateTimeImmutable $endDate): self
     {
         $this->endDate = $endDate;
-
         return $this;
     }
 
@@ -122,7 +107,6 @@ class Budget
     public function setStartAmount(int $startAmount): self
     {
         $this->startAmount = $startAmount;
-
         return $this;
     }
 
