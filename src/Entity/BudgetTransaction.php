@@ -7,9 +7,11 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use App\Repository\BudgetTransactionRepository;
 use App\Security\Voter\BudgetTransactionVoter;
+use App\State\BudgetTransactionCreationProcessor;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
@@ -20,7 +22,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Post(
             normalizationContext: ['groups' => 'budget-transaction:read'],
             denormalizationContext: ['groups' => 'budget-transaction:write'],
-            securityPostDenormalize: 'is_granted("' . BudgetTransactionVoter::CREATE . '", object)'
+            securityPostDenormalize: 'is_granted("' . BudgetTransactionVoter::CREATE . '", object)',
+            processor: BudgetTransactionCreationProcessor::class
         )
     ]
 )]
@@ -35,13 +38,16 @@ class BudgetTransaction
         #[ORM\ManyToOne(targetEntity: Budget::class, inversedBy: 'budgetTransaction')]
         #[ORM\JoinColumn(nullable: false)]
         #[Groups(["budget-transaction:read", "budget-transaction:write"])]
+        #[Assert\NotBlank]
         private readonly Budget      $budget,
         #[ORM\ManyToOne(targetEntity: Transaction::class, cascade: ["persist"], inversedBy: 'budgetTransaction')]
         #[ORM\JoinColumn(nullable: false)]
         #[Groups(["budget-transaction:read", "budget-transaction:write"])]
+        #[Assert\NotBlank]
         private readonly Transaction $transaction,
         #[ORM\Column('date_immutable')]
         #[Groups(["budget-transaction:read", "budget-transaction:write"])]
+        #[Assert\NotBlank]
         private DateTimeImmutable    $impactDate,
         #[ORM\Column(type: 'boolean')]
         #[Groups(["budget-transaction:read", "budget-transaction:write"])]

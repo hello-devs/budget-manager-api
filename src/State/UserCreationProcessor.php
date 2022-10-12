@@ -30,6 +30,7 @@ class UserCreationProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): User
     {
         if (!($data instanceof UserCreationDto)) {
+            //todo log error info for devs
             throw new HttpException(500);
         }
 
@@ -44,6 +45,7 @@ class UserCreationProcessor implements ProcessorInterface
         $errors = $this->validator->validate($user);
 
         if (count($errors) > 0) {
+            //todo log error info for devs
             throw new HttpException(500);
         }
 
