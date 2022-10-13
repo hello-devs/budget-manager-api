@@ -30,6 +30,7 @@
         </include>
         <exclude>
             <file>src/Kernel.php</file>
+            <directory>src/DataFixtures</directory>
         </exclude>
     </coverage>
 
