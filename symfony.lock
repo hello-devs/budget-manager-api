@@ -1,16 +1,15 @@
 {
     "api-platform/core": {
-        "version": "2.6",
+        "version": "3.0",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.5",
-            "ref": "05b57782a78c21a664a42055dc11cf1954ca36bb"
+            "branch": "main",
+            "version": "3.0",
+            "ref": "0330386d716d3eecc52ee5ac66976e733eb8f961"
         },
         "files": [
-            "config/packages/api_platform.yaml",
             "config/routes/api_platform.yaml",
-            "src/Entity/.gitignore"
+            "src/ApiResource/.gitignore"
         ]
     },
     "composer/package-versions-deprecated": {
@@ -226,9 +225,6 @@
     },
     "psr/event-dispatcher": {
         "version": "1.0.0"
-    },
-    "psr/link": {
-        "version": "1.1.1"
     },
     "psr/log": {
         "version": "2.0.0"
@@ -558,9 +554,6 @@
     "symfony/var-exporter": {
         "version": "v5.3.8"
     },
-    "symfony/web-link": {
-        "version": "v5.3.4"
-    },
     "symfony/web-profiler-bundle": {
         "version": "5.3",
         "recipe": {
@@ -586,8 +579,5 @@
     },
     "webmozart/assert": {
         "version": "1.10.0"
-    },
-    "willdurand/negotiation": {
-        "version": "3.0.0"
     }
 }
