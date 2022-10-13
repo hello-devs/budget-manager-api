@@ -64,9 +64,9 @@ class UserManagementITest extends AbstractApiTestCase
     public function provideUserWithDifferentRoles(): array
     {
         return [
-            ["tester@email.com", "password", ["ROLE_USER"], 403, 403],
-            ["tester@email.com", "password", ["ROLE_CLIENT"], 403, 201],
-            ["tester@email.com", "password", ["ROLE_ADMIN"], 200, 201],
+            "ROLE_USER" => ["tester@email.com", "password", ["ROLE_USER"], 403, 403],
+            "ROLE_CLIENT" => ["tester@email.com", "password", ["ROLE_CLIENT"], 403, 201],
+            "ROLE_ADMIN" => ["tester@email.com", "password", ["ROLE_ADMIN"], 200, 201],
         ];
     }
 }
