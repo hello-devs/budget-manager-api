@@ -17,15 +17,17 @@ class BudgetTest extends TestCase
         $user = new User();
         /** @var DateTimeImmutable $startDate */
         $startDate = date_create_immutable("2022-05-01");
+        $endDate = date_create_immutable("2022-05-31");
 
         //  When
         $budget = new Budget(name: $budgetName, creator: $user, startDate: $startDate);
+        $budget->setEndDate($endDate);
 
         //  Then
         $this->assertInstanceOf(Budget::class, $budget);
         $this->assertSame($user, $budget->getCreator());
         $this->assertSame($budgetName, $budget->getName());
         $this->assertSame($startDate, $budget->getStartDate());
-        $this->assertNull($budget->getEndDate());
+        $this->assertSame($endDate, $budget->getEndDate());
     }
 }

@@ -27,26 +27,31 @@ class UserTest extends TestCase
     {
         //We have a user
         $user = new User();
+        $plainPass = 'pwd';
 
         //When we set his properties
+        $pwd = $this->passwordHasher->hashPassword($user, $plainPass);
+
         $user
             ->setEmail('tester@email.com')
+            ->setPlainPassword($plainPass)
+            ->setPassword($pwd)
+            ->setRoles(['ROLE_TESTER'])
         ;
-        $pwd = $this->passwordHasher->hashPassword($user, 'pwd');
-        $user->setPassword($pwd);
 
-
-        //We expect
         $username = $user->getUsername();
         $identifier = $user->getUserIdentifier();
         $email = $user->getEmail();
+        $plainPassword = $user->getPlainPassword();
         $isValidPassword = $this->passwordHasher->isPasswordValid($user, 'pwd');
-        $user->setRoles(['ROLE_TESTER']);
         $roles = $user->getRoles();
         $id = $user->getId();
 
+        //We expect
         $this->assertEquals('tester@email.com', $identifier);
         $this->assertEquals('tester@email.com', $email);
+        $this->assertEquals('tester@email.com', $username);
+        $this->assertEquals('pwd', $plainPassword);
         $this->assertTrue($isValidPassword, "The password submitted to verification isn't valid");
         $this->assertContains('ROLE_TESTER', $roles, "User don't have expected ROLE_TESTER");
         $this->assertContains('ROLE_USER', $roles, "User don't have expected role ROLE_USER");
