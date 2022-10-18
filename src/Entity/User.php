@@ -112,9 +112,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @param string $plainPassword
      */
-    public function setPlainPassword(string $plainPassword): void
+    public function setPlainPassword(string $plainPassword): self
     {
         $this->plainPassword = $plainPassword;
+        return $this;
     }
 
     /**
@@ -146,11 +147,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->roles = $roles;
         return $this;
-    }
-
-    public function getSalt(): ?string
-    {
-        return null;
     }
 
     public function eraseCredentials(): void
