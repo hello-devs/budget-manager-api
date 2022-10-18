@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\functional;
+namespace Tests\Functional;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\units\Security\Voter;
+namespace Tests\Unit\Security\Voter;
 
 use App\Entity\Budget;
 use App\Entity\User;

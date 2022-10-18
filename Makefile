@@ -23,8 +23,8 @@ cache-clear: ## Clear cache
 .PHONY: tests
 tests: ## Run all tests
 	$(MAKE) database-init-test
-	$(PHP) vendor/bin/pest --testdox tests/units/
-	$(PHP) vendor/bin/pest --testdox tests/functional/
+	$(PHP) vendor/bin/pest --testdox tests/Unit/
+	$(PHP) vendor/bin/pest --testdox tests/Functional/
 
 database-init-test: ## Init database for test
 	$(SYMFONY_CONSOLE) d:d:d --force --if-exists --env=test
@@ -33,11 +33,11 @@ database-init-test: ## Init database for test
 	$(SYMFONY_CONSOLE) d:f:l --no-interaction --env=test
 
 unit-test: ## Run unit tests
-	$(PHP) vendor/bin/pest --testdox tests/units/
+	$(PHP) vendor/bin/pest --testdox tests/Unit/
 
 functional-test: ## Run functional tests
 	$(MAKE) database-init-test
-	$(PHP) vendor/bin/pest --testdox tests/functional/
+	$(PHP) vendor/bin/pest --testdox tests/Functional/
 
 # PANTHER_NO_HEADLESS=1 ./bin/phpunit --filter LikeTest --debug to debug with Chrome
 e2e-test: ## Run E2E tests

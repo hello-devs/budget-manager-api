@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\units\Entity;
+namespace Tests\Unit\Entity;
 
 use App\Entity\Transaction;
 use App\Entity\User;

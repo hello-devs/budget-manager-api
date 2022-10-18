@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\functional;
+namespace Tests\Functional;
 
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;

@@ -40,8 +40,6 @@ class BudgetTransactionVoter extends Voter
         $budgetCreator = $subject->getBudget()->getCreator();
 
         switch ($attribute) {
-
-
             case self::CREATE:
             case self::VIEW:
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\units\Controller;
+namespace Tests\Unit\Controller;
 
 use App\Controller\UserController;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ class UserControllerTest extends TestCase
 
 
         //  When
-        $result = $controller->getCurrentUserInfo($security,$serializer);
+        $result = $controller->getCurrentUserInfo($security, $serializer);
 
         //  Then
         $this->assertEquals(403, $result->getStatusCode());

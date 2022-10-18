@@ -26,7 +26,7 @@ class AppFixtures extends Fixture
             ->setEmail("admin@admin.com")
             ->setPassword($this->passwordHasher->hashPassword($admin, "pwdpwd"))
             ->setRoles(['ROLE_ADMIN'])
-            ;
+        ;
         $manager->persist($admin);
 
         $manager->flush();

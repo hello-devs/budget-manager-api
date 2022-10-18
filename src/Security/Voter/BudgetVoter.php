@@ -41,7 +41,6 @@ class BudgetVoter extends Voter
         $user = $token->getUser();
 
         switch ($attribute) {
-
             case self::VIEW:
             case self::UPDATE:
             case self::DELETE:

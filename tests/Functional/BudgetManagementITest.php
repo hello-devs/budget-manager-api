@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\functional;
+namespace Tests\Functional;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;

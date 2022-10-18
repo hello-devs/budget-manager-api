@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\units\Dto;
+namespace Tests\Unit\Dto;
 
 use App\Dto\UserCreationDto;
 use PHPUnit\Framework\TestCase;
