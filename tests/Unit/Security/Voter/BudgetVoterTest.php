@@ -5,6 +5,7 @@ namespace Tests\Unit\Security\Voter;
 use App\Entity\Budget;
 use App\Entity\User;
 use App\Security\Voter\BudgetVoter;
+use App\Security\Voter\Enum\BudgetVoterCase;
 use DateTimeImmutable;
 use Generator;
 use PHPUnit\Framework\TestCase;
@@ -50,7 +51,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
             false,
-            BudgetVoter::VIEW,
+            BudgetVoterCase::View->value,
             1
         ];
 
@@ -58,7 +59,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user2, startDate: new DateTimeImmutable("2022-01-01")),
             false,
-            BudgetVoter::VIEW,
+            BudgetVoterCase::View->value,
             -1
         ];
 
@@ -66,7 +67,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user2, startDate: new DateTimeImmutable("2022-01-01")),
             true,
-            BudgetVoter::VIEW,
+            BudgetVoterCase::Delete->value,
             1
         ];
 
@@ -75,7 +76,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
             false,
-            BudgetVoter::DELETE,
+            BudgetVoterCase::Delete->value,
             1
         ];
 
@@ -83,7 +84,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user2, startDate: new DateTimeImmutable("2022-01-01")),
             false,
-            BudgetVoter::DELETE,
+            BudgetVoterCase::Delete->value,
             -1
         ];
 
@@ -91,7 +92,7 @@ class BudgetVoterTest extends TestCase
             $user2,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
             true,
-            BudgetVoter::DELETE,
+            BudgetVoterCase::Delete->value,
             1
         ];
 
@@ -100,7 +101,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
             false,
-            BudgetVoter::UPDATE,
+            BudgetVoterCase::Update->value,
             1
         ];
 
@@ -108,7 +109,7 @@ class BudgetVoterTest extends TestCase
             $user1,
             new Budget(name: "unit-test-budget", creator: $user2, startDate: new DateTimeImmutable("2022-01-01")),
             false,
-            BudgetVoter::UPDATE,
+            BudgetVoterCase::Update->value,
             -1
         ];
 
@@ -116,7 +117,7 @@ class BudgetVoterTest extends TestCase
             $user2,
             new Budget(name: "unit-test-budget", creator: $user1, startDate: new DateTimeImmutable("2022-01-01")),
             true,
-            BudgetVoter::UPDATE,
+            BudgetVoterCase::Update->value,
             1
         ];
     }

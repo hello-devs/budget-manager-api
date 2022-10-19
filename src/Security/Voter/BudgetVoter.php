@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Budget;
+use App\Security\Voter\Enum\BudgetVoterCase;
 use Exception;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -10,10 +11,6 @@ use Symfony\Component\Security\Core\Security;
 
 class BudgetVoter extends Voter
 {
-    public const VIEW = "BUDGET_VIEW";
-    public const DELETE = "BUDGET_DELETE";
-    public const UPDATE = "BUDGET_UPDATE";
-
     public function __construct(private readonly Security $security)
     {
     }
@@ -21,7 +18,7 @@ class BudgetVoter extends Voter
     protected function supports(string $attribute, mixed $subject): bool
     {
         return
-            in_array($attribute, [self::VIEW, self::DELETE, self::UPDATE]) &&
+            in_array($attribute, BudgetVoterCase::values()) &&
             $subject instanceof Budget;
     }
 
@@ -41,9 +38,9 @@ class BudgetVoter extends Voter
         $user = $token->getUser();
 
         switch ($attribute) {
-            case self::VIEW:
-            case self::UPDATE:
-            case self::DELETE:
+            case BudgetVoterCase::View->value:
+            case BudgetVoterCase::Update->value:
+            case BudgetVoterCase::Delete->value:
 
                 if ($subject->getCreator() === $user) {
                     return true;

@@ -17,12 +17,12 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(
             normalizationContext: ['groups' => 'budget-transaction:read'],
-            security: 'is_granted("' . BudgetTransactionVoter::VIEW . '", object)'
+            security: 'is_granted("BUDGET_TRANSACTION_VIEW", object)'
         ),
         new Post(
             normalizationContext: ['groups' => 'budget-transaction:read'],
             denormalizationContext: ['groups' => 'budget-transaction:write'],
-            securityPostDenormalize: 'is_granted("' . BudgetTransactionVoter::CREATE . '", object)',
+            securityPostDenormalize: 'is_granted("BUDGET_TRANSACTION_CREATE", object)',
             processor: BudgetTransactionCreationProcessor::class
         )
     ]

@@ -7,6 +7,7 @@ use App\Entity\BudgetTransaction;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Security\Voter\BudgetTransactionVoter;
+use App\Security\Voter\Enum\BudgetTransactionVoterCase;
 use DateTimeImmutable;
 use Generator;
 use PHPUnit\Framework\TestCase;
@@ -56,7 +57,7 @@ class BudgetTransactionVoterTest extends TestCase
                 impactDate: date_create_immutable("2022-01-01")
             ),
             false,
-            BudgetTransactionVoter::VIEW,
+            BudgetTransactionVoterCase::View->value,
             1
         ];
 
@@ -68,7 +69,7 @@ class BudgetTransactionVoterTest extends TestCase
                 impactDate: date_create_immutable("2022-01-01")
             ),
             false,
-            BudgetTransactionVoter::VIEW,
+            BudgetTransactionVoterCase::View->value,
             -1
         ];
 
@@ -80,7 +81,7 @@ class BudgetTransactionVoterTest extends TestCase
                 impactDate: date_create_immutable("2022-01-01")
             ),
             true,
-            BudgetTransactionVoter::VIEW,
+            BudgetTransactionVoterCase::View->value,
             1
         ];
     }
