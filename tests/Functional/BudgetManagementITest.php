@@ -36,7 +36,8 @@ class BudgetManagementITest extends AbstractApiTestCase
 
         $user1Token = $this->getToken("/get_token", ["email" => $user1Email, "password" => $user1Password]);
 
-        /*
+
+        /**
          * When we request to create a budget
          * with a valid user token
          */
@@ -51,7 +52,9 @@ class BudgetManagementITest extends AbstractApiTestCase
         //then
         $this->assertResponseStatusCodeSame(201);
 
-        /*
+
+
+        /**
          * When we request the created budget
          * with the token of the creator
          * and with the id of the budget
@@ -63,7 +66,9 @@ class BudgetManagementITest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertEquals($createdBudgetId, $requestedBudgetId);
 
-        /*
+
+
+        /**
          * When we request budget update
          * changing the name of the budget
          * with PUT method
@@ -89,12 +94,9 @@ class BudgetManagementITest extends AbstractApiTestCase
         $this->assertSame($requestedBudgetId, $updatedBudgetId);
 
 
-        /*
-         * When we request budget update
-         * changing the name of the budget
-         * with PUT method
-         * and putting all budget in json
-         *
+
+        /**
+         * When we request BudgetTransaction creation
          */
         $transactionAmount = 500;
         $budgetTransactionRequest = $this->requestWithJwt(
@@ -114,7 +116,20 @@ class BudgetManagementITest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(201);
 
 
-        /*
+
+        /**
+         * When we request BudgetTransaction amount edition
+         */
+
+
+
+        /**
+         * When we request BudgetTransaction deletion
+         */
+
+
+
+        /**
          * When request to delete the budget
          */
         $request = $this->requestWithJwt(
