@@ -46,6 +46,7 @@ class BudgetTransactionCreationProcessor implements ProcessorInterface
         }
 
         $this->entityManager->persist($data);
+        $this->entityManager->flush();
 
         return $data;
     }
