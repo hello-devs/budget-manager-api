@@ -33,7 +33,7 @@ class BudgetManagementITest extends AbstractApiTestCase
             "startAmount" => 10_000,
             "creator" => "/api/users/$user1Id"
         ];
-
+        $budgetTransactionAmount = 500;
         $user1Token = $this->getToken("/get_token", ["email" => $user1Email, "password" => $user1Password]);
 
 
@@ -41,17 +41,7 @@ class BudgetManagementITest extends AbstractApiTestCase
          * When we request to create a budget
          * with a valid user token
          */
-        $postResponse = $this->requestWithJwt(
-            "POST",
-            "/api/budgets",
-            $user1Token,
-            $budgetData
-        );
-        $createdBudgetId = $postResponse->toArray()["id"];
-
-        //then
-        $this->assertResponseStatusCodeSame(201);
-
+        $createdBudgetId = $this->checkValidUserCanCreateBudget($user1Token, $budgetData);
 
 
         /**
@@ -59,13 +49,7 @@ class BudgetManagementITest extends AbstractApiTestCase
          * with the token of the creator
          * and with the id of the budget
          */
-        $request = $this->getTheCreatedBudget($createdBudgetId, $user1Token);
-        $requestedBudgetId = $request->toArray()["id"];
-
-        //Then
-        $this->assertResponseStatusCodeSame(200);
-        $this->assertEquals($createdBudgetId, $requestedBudgetId);
-
+        $this->checkWeCanRetrieveCreatedBudgetWithId($createdBudgetId, $user1Token);
 
 
         /**
@@ -73,65 +57,57 @@ class BudgetManagementITest extends AbstractApiTestCase
          * changing the name of the budget
          * with PUT method
          * and putting all budget in json
-         *
          */
-        $budgetData["name"] = "budget-edited-name";
-        $updateRequest = $this->requestWithJwt(
-            method: "PUT",
-            url: "/api/budgets/$createdBudgetId",
-            token: $user1Token,
-            json: $budgetData
-        );
-
-        $updateResponse = $updateRequest->toArray();
-        $updatedName = $updateResponse["name"];
-        $updatedBudgetId = $updateResponse["id"];
-
-        //Then expect only name change
-        $this->assertResponseStatusCodeSame(200);
-        $this->assertSame("budget-edited-name", $updatedName);
-        $this->assertSame($budgetData['startAmount'], $updateResponse['startAmount']);
-        $this->assertSame($requestedBudgetId, $updatedBudgetId);
-
-
+        $this->checkThatWeCanUpdateBudgetAndRetrieveUpdatedData($budgetData, $createdBudgetId, $user1Token);
 
         /**
          * When we request BudgetTransaction creation
          */
-        $transactionAmount = 500;
-        $budgetTransactionRequest = $this->requestWithJwt(
-            method: "POST",
-            url: "/api/budget_transactions",
-            token: $user1Token,
-            json: [
-                "budget" => "/api/budgets/" . $createdBudgetId,
-                "transaction" => [
-                    "amount" => $transactionAmount
-                ],
-                "impactDate" => "20220501"
-            ]
-        );
-
-        //Then
-        $this->assertResponseStatusCodeSame(201);
-
-
+        $budgetTransactionId = $this->checkWeCanCreateBudgetTransaction($user1Token, $createdBudgetId, $budgetTransactionAmount);
 
         /**
          * When we request BudgetTransaction amount edition
          */
+        $requestBTUpdate = $this->requestWithJwt(
+            "PUT",
+            "/api/budget_transactions/$budgetTransactionId",
+            $user1Token,
+            $budgetData
+        );
 
-
+        $this->assertResponseStatusCodeSame(200);
 
         /**
          * When we request BudgetTransaction deletion
          */
 
 
-
         /**
          * When request to delete the budget
          */
+        $this->checkThatBudgetCanBeDelete($createdBudgetId, $user1Token);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     */
+    private function getTheCreatedBudget(int $budgetID, string $userToken): ResponseInterface
+    {
+        return $this->requestWithJwt(
+            "GET",
+            "/api/budgets/$budgetID",
+            token: $userToken
+        );
+    }
+
+    /**
+     * @param int $createdBudgetId
+     * @param string $user1Token
+     * @return void
+     * @throws TransportExceptionInterface
+     */
+    public function checkThatBudgetCanBeDelete(int $createdBudgetId, string $user1Token): void
+    {
         $request = $this->requestWithJwt(
             "DELETE",
             "/api/budgets/$createdBudgetId",
@@ -149,14 +125,116 @@ class BudgetManagementITest extends AbstractApiTestCase
     }
 
     /**
+     * @param string $user1Token
+     * @param int $createdBudgetId
+     * @param int $amount
+     * @return int
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    private function getTheCreatedBudget(int $budgetID, string $userToken): ResponseInterface
+    public function checkWeCanCreateBudgetTransaction(string $user1Token, int $createdBudgetId, int $amount): int
     {
-        return $this->requestWithJwt(
-            "GET",
-            "/api/budgets/$budgetID",
-            token: $userToken
+        $transactionAmount = $amount;
+        $budgetTransactionRequest = $this->requestWithJwt(
+            method: "POST",
+            url: "/api/budget_transactions",
+            token: $user1Token,
+            json: [
+                "budget" => "/api/budgets/" . $createdBudgetId,
+                "transaction" => [
+                    "amount" => $transactionAmount
+                ],
+                "impactDate" => "20220501"
+            ]
         );
+
+
+        $budgetTransactionId = (int)$budgetTransactionRequest->toArray()["id"];
+
+        //Then
+        $this->assertResponseStatusCodeSame(201);
+
+        return $budgetTransactionId;
+    }
+
+    /**
+     * @param array<string, mixed> $budgetData
+     * @param int $createdBudgetId
+     * @param string $user1Token
+     * @return void
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function checkThatWeCanUpdateBudgetAndRetrieveUpdatedData(array $budgetData, int $createdBudgetId, string $user1Token): void
+    {
+        $budgetData["name"] = "budget-edited-name";
+        $updateRequest = $this->requestWithJwt(
+            method: "PUT",
+            url: "/api/budgets/$createdBudgetId",
+            token: $user1Token,
+            json: $budgetData
+        );
+
+        $updateResponse = $updateRequest->toArray();
+        $updatedName = $updateResponse["name"];
+        $updatedBudgetId = $updateResponse["id"];
+
+        //Then expect only name change
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame("budget-edited-name", $updatedName);
+        $this->assertSame($budgetData['startAmount'], $updateResponse['startAmount']);
+    }
+
+    /**
+     * @param int $createdBudgetId
+     * @param string $user1Token
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function checkWeCanRetrieveCreatedBudgetWithId(int $createdBudgetId, string $user1Token): mixed
+    {
+        $request = $this->getTheCreatedBudget($createdBudgetId, $user1Token);
+        $requestedBudgetId = $request->toArray()["id"];
+
+        //Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertEquals($createdBudgetId, $requestedBudgetId);
+        return $requestedBudgetId;
+    }
+
+    /**
+     * @param string $user1Token
+     * @param array<string, mixed> $budgetData
+     * @return int
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function checkValidUserCanCreateBudget(string $user1Token, array $budgetData): int
+    {
+        $postResponse = $this->requestWithJwt(
+            "POST",
+            "/api/budgets",
+            $user1Token,
+            $budgetData
+        );
+
+        /** @var int $createdBudgetId */
+        $createdBudgetId = $postResponse->toArray()["id"];
+
+        //then
+        $this->assertResponseStatusCodeSame(201);
+        return $createdBudgetId;
     }
 }
