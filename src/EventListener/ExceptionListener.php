@@ -27,8 +27,7 @@ class ExceptionListener
         ]);
 
         if ($exception instanceof HttpExceptionInterface) {
-            $response->setStatusCode($exception->getCode());
-
+            $response->setStatusCode($exception->getStatusCode());
         } else {
             $logErrorId = uniqid();
 

@@ -27,6 +27,7 @@ class BudgetManagementITest extends AbstractApiTestCase
         $user1Email = "user1@email.com";
         $user1Password = "user1-pwd";
         $user1Id = $this->createUserInDatabase($user1Email, $user1Password);
+        $user1Token = $this->getToken("/get_token", ["email" => $user1Email, "password" => $user1Password]);
         $budgetData = [
             "name" => "budget-name",
             "startDate" => date("Y-m-01"),
@@ -34,7 +35,9 @@ class BudgetManagementITest extends AbstractApiTestCase
             "creator" => "/api/users/$user1Id"
         ];
         $budgetTransactionAmount = 500;
-        $user1Token = $this->getToken("/get_token", ["email" => $user1Email, "password" => $user1Password]);
+        $budgetTransactionImpactDate = "20220501";
+        $budgetTransactionUpdatedImpactDate = "20220502";
+        $budgetTransactionUpdatedAmount = 100;
 
 
         /**
@@ -63,18 +66,37 @@ class BudgetManagementITest extends AbstractApiTestCase
         /**
          * When we request BudgetTransaction creation
          */
-        $budgetTransactionId = $this->checkWeCanCreateBudgetTransaction($user1Token, $createdBudgetId, $budgetTransactionAmount);
+        $budgetTransactionData = [
+            "budget" => "/api/budgets/" . $createdBudgetId,
+            "transaction" => [
+                "amount" => $budgetTransactionAmount
+            ],
+            "impactDate" => $budgetTransactionImpactDate
+        ];
+
+        $createdBudgetTransactionData = $this->checkWeCanCreateBudgetTransaction($user1Token, $budgetTransactionData);
 
         /**
-         * When we request BudgetTransaction amount edition
+         * When we request BudgetTransaction update
          */
+
+        $createdBudgetTransactionData["transaction"]["amount"] = $budgetTransactionUpdatedAmount;
+        $createdBudgetTransactionData["impactDate"] = $budgetTransactionUpdatedImpactDate;
+
         $requestBTUpdate = $this->requestWithJwt(
             "PUT",
-            "/api/budget_transactions/$budgetTransactionId",
+            "/api/budget_transactions/{$createdBudgetTransactionData['id']}",
             $user1Token,
-            $budgetData
+            $createdBudgetTransactionData
         );
 
+        $updatedTransactionData = $requestBTUpdate->toArray();
+
+        $this->assertEquals(
+            date_create_immutable($budgetTransactionUpdatedImpactDate),
+            date_create_immutable($updatedTransactionData["impactDate"])
+        );
+        $this->assertEquals($budgetTransactionUpdatedAmount, $updatedTransactionData["transaction"]["amount"]);
         $this->assertResponseStatusCodeSame(200);
 
         /**
@@ -108,7 +130,7 @@ class BudgetManagementITest extends AbstractApiTestCase
      */
     public function checkThatBudgetCanBeDelete(int $createdBudgetId, string $user1Token): void
     {
-        $request = $this->requestWithJwt(
+        $this->requestWithJwt(
             "DELETE",
             "/api/budgets/$createdBudgetId",
             token: $user1Token
@@ -126,38 +148,41 @@ class BudgetManagementITest extends AbstractApiTestCase
 
     /**
      * @param string $user1Token
-     * @param int $createdBudgetId
-     * @param int $amount
-     * @return int
+     * @param array<string, mixed> $budgetTransactionData
+     * @return array{
+     *          "id" : int,
+     *          "budget" : string,
+     *          "transaction" : array<string, string|int>,
+     *          "impactDate" : string
+     * }
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function checkWeCanCreateBudgetTransaction(string $user1Token, int $createdBudgetId, int $amount): int
+    public function checkWeCanCreateBudgetTransaction(string $user1Token, array $budgetTransactionData): array
     {
-        $transactionAmount = $amount;
         $budgetTransactionRequest = $this->requestWithJwt(
             method: "POST",
             url: "/api/budget_transactions",
             token: $user1Token,
-            json: [
-                "budget" => "/api/budgets/" . $createdBudgetId,
-                "transaction" => [
-                    "amount" => $transactionAmount
-                ],
-                "impactDate" => "20220501"
-            ]
+            json: $budgetTransactionData
         );
 
-
-        $budgetTransactionId = (int)$budgetTransactionRequest->toArray()["id"];
+        /** @var array{
+         *          "id" : int,
+         *          "budget" : string,
+         *          "transaction" : array<string, string|int>,
+         *          "impactDate" : string
+         * } $budgetTransactionData
+         */
+        $budgetTransactionData = $budgetTransactionRequest->toArray();
 
         //Then
         $this->assertResponseStatusCodeSame(201);
 
-        return $budgetTransactionId;
+        return $budgetTransactionData;
     }
 
     /**

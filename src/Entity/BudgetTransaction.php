@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\BudgetTransactionRepository;
 use App\Security\Voter\BudgetTransactionVoter;
 use App\State\BudgetTransactionCreationProcessor;
@@ -16,16 +17,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new Get(
-            normalizationContext: ['groups' => 'budget-transaction:read'],
             security: 'is_granted("' . BudgetTransactionVoter::VIEW . '", object)'
         ),
         new Post(
-            normalizationContext: ['groups' => 'budget-transaction:read'],
-            denormalizationContext: ['groups' => 'budget-transaction:write'],
             securityPostDenormalize: 'is_granted("' . BudgetTransactionVoter::CREATE . '", object)',
             processor: BudgetTransactionCreationProcessor::class
+        ),
+        new Put(
+            security: 'is_granted("' . BudgetTransactionVoter::UPDATE . '", object)'
         )
-    ]
+    ],
+    normalizationContext: ['groups' => 'budget-transaction:read'],
+    denormalizationContext: ['groups' => 'budget-transaction:write']
 )]
 #[ORM\Entity(repositoryClass: BudgetTransactionRepository::class)]
 class BudgetTransaction
