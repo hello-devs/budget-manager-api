@@ -6,9 +6,11 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Dto\BudgetTransactionUpdateDto;
 use App\Repository\BudgetTransactionRepository;
 use App\Security\Voter\BudgetTransactionVoter;
 use App\State\BudgetTransactionCreationProcessor;
+use App\State\BudgetTransactionUpdateProcessor;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -24,7 +26,9 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: BudgetTransactionCreationProcessor::class
         ),
         new Put(
-            security: 'is_granted("' . BudgetTransactionVoter::UPDATE . '", object)'
+            security: 'is_granted("' . BudgetTransactionVoter::UPDATE . '", object)',
+            input: BudgetTransactionUpdateDto::class,
+            processor: BudgetTransactionUpdateProcessor::class
         )
     ],
     normalizationContext: ['groups' => 'budget-transaction:read'],

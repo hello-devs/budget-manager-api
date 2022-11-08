@@ -79,25 +79,30 @@ class BudgetManagementITest extends AbstractApiTestCase
         /**
          * When we request BudgetTransaction update
          */
-
-        $createdBudgetTransactionData["transaction"]["amount"] = $budgetTransactionUpdatedAmount;
-        $createdBudgetTransactionData["impactDate"] = $budgetTransactionUpdatedImpactDate;
-
         $requestBTUpdate = $this->requestWithJwt(
             "PUT",
             "/api/budget_transactions/{$createdBudgetTransactionData['id']}",
             $user1Token,
-            $createdBudgetTransactionData
+            [
+                "transactionAmount" => $budgetTransactionUpdatedAmount,
+                "impactDate" => $budgetTransactionUpdatedImpactDate
+            ]
         );
 
         $updatedTransactionData = $requestBTUpdate->toArray();
 
-        $this->assertEquals(
-            date_create_immutable($budgetTransactionUpdatedImpactDate),
-            date_create_immutable($updatedTransactionData["impactDate"])
-        );
+        $oldBudgetTransactionImpactDate = date_create_immutable($budgetTransactionUpdatedImpactDate);
+        $updatedBudgetTransactionImpactDate = date_create_immutable($updatedTransactionData["impactDate"]);
+
+        $this->assertEquals($oldBudgetTransactionImpactDate, $updatedBudgetTransactionImpactDate);
         $this->assertEquals($budgetTransactionUpdatedAmount, $updatedTransactionData["transaction"]["amount"]);
         $this->assertResponseStatusCodeSame(200);
+
+        $btTest = $this->requestWithJwt(
+            "GET",
+            "/api/budget_transactions/{$createdBudgetTransactionData['id']}",
+            $user1Token
+        );
 
         /**
          * When we request BudgetTransaction deletion
