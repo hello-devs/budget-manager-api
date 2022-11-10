@@ -31,7 +31,6 @@ class ExceptionListener
 
         if ($exception instanceof HttpExceptionInterface) {
             $response->setStatusCode($exception->getStatusCode());
-
         } elseif ($exception instanceof UnexpectedValueException) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
             $responseData = [
@@ -43,7 +42,6 @@ class ExceptionListener
                 $responseData["message"] = $exception->getPrevious()->getMessage();
             }
             $response->setData($responseData);
-
         } else {
             $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
             $response->setData([

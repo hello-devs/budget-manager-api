@@ -42,6 +42,8 @@ class BudgetTransactionUpdateProcessor implements ProcessorInterface
 
         $this->updateImpactDate($data, $budgetTransaction);
 
+        $this->updateSign($data, $budgetTransaction);
+
 
         $this->entityManager->persist($budgetTransaction);
         $this->entityManager->flush();
@@ -76,6 +78,22 @@ class BudgetTransactionUpdateProcessor implements ProcessorInterface
             }
 
             $budgetTransaction->setImpactDate($newImpactDate);
+        }
+    }
+
+    /**
+     * @param BudgetTransactionUpdateDto $data
+     * @param BudgetTransaction $budgetTransaction
+     * @return void
+     */
+    public function updateSign(BudgetTransactionUpdateDto $data, BudgetTransaction $budgetTransaction): void
+    {
+        if ($data->isNegative !== null) {
+            if ($data->isNegative !== true) {
+                $budgetTransaction->setNegative();
+            } else {
+                $budgetTransaction->setPositive();
+            }
         }
     }
 }
