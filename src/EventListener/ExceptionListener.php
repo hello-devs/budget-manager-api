@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
+use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
 class ExceptionListener
 {
@@ -18,25 +20,36 @@ class ExceptionListener
     {
         $exception = $event->getThrowable();
 
-        $title = "Request Error";
+        $title = "Request error.";
+        $logErrorId = uniqid();
 
-        //Todo make response specific to exception
         $response = new JsonResponse([
             "title" => $title,
             "description" => $exception->getMessage(),
+            "LOG_ERROR_ID" => $logErrorId
         ]);
 
         if ($exception instanceof HttpExceptionInterface) {
             $response->setStatusCode($exception->getStatusCode());
-        } else {
-            $logErrorId = uniqid();
 
+        } elseif ($exception instanceof UnexpectedValueException) {
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $responseData = [
+                "title" => "Unexpected value error.",
+                "description" => $exception->getMessage(),
+            ];
+
+            if ($exception->getPrevious() instanceof NotNormalizableValueException) {
+                $responseData["message"] = $exception->getPrevious()->getMessage();
+            }
+            $response->setData($responseData);
+
+        } else {
             $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
             $response->setData([
                 "title" => "SERVER ERROR",
                 "description" => "The server encountered an error while processing your response",
                 "message" => "Please contact administrator with your log error Id to help solve it",
-                "LOG_ERROR_ID" => $logErrorId
             ]);
 
             /** @var string $logData */
