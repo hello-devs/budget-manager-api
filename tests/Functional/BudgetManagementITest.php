@@ -66,42 +66,21 @@ class BudgetManagementITest extends AbstractApiTestCase
         /**
          * When we request BudgetTransaction creation
          */
-        $budgetTransactionData = [
-            "budget" => "/api/budgets/" . $createdBudgetId,
-            "transaction" => [
-                "amount" => $budgetTransactionAmount
-            ],
-            "impactDate" => $budgetTransactionImpactDate
-        ];
-
-        $createdBudgetTransactionData = $this->checkWeCanCreateBudgetTransaction($user1Token, $budgetTransactionData);
+        $createdBudgetTransactionData = $this->checkWeCanCreateBudgetTransaction(
+            $user1Token,
+            $createdBudgetId,
+            $budgetTransactionAmount,
+            $budgetTransactionImpactDate
+        );
 
         /**
          * When we request BudgetTransaction update
          */
-        $requestBTUpdate = $this->requestWithJwt(
-            "PUT",
-            "/api/budget_transactions/{$createdBudgetTransactionData['id']}",
+        $this->checkWeCanUpdateBudgetTransactionImpactDateAndAmount(
+            $createdBudgetTransactionData['id'],
             $user1Token,
-            [
-                "transactionAmount" => $budgetTransactionUpdatedAmount,
-                "impactDate" => $budgetTransactionUpdatedImpactDate
-            ]
-        );
-
-        $updatedTransactionData = $requestBTUpdate->toArray();
-
-        $oldBudgetTransactionImpactDate = date_create_immutable($budgetTransactionUpdatedImpactDate);
-        $updatedBudgetTransactionImpactDate = date_create_immutable($updatedTransactionData["impactDate"]);
-
-        $this->assertEquals($oldBudgetTransactionImpactDate, $updatedBudgetTransactionImpactDate);
-        $this->assertEquals($budgetTransactionUpdatedAmount, $updatedTransactionData["transaction"]["amount"]);
-        $this->assertResponseStatusCodeSame(200);
-
-        $btTest = $this->requestWithJwt(
-            "GET",
-            "/api/budget_transactions/{$createdBudgetTransactionData['id']}",
-            $user1Token
+            $budgetTransactionUpdatedAmount,
+            $budgetTransactionUpdatedImpactDate
         );
 
         /**
@@ -153,7 +132,9 @@ class BudgetManagementITest extends AbstractApiTestCase
 
     /**
      * @param string $user1Token
-     * @param array<string, mixed> $budgetTransactionData
+     * @param int $createdBudgetId
+     * @param int $budgetTransactionAmount
+     * @param string $budgetTransactionImpactDate
      * @return array{
      *          "id" : int,
      *          "budget" : string,
@@ -166,8 +147,20 @@ class BudgetManagementITest extends AbstractApiTestCase
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function checkWeCanCreateBudgetTransaction(string $user1Token, array $budgetTransactionData): array
-    {
+    public function checkWeCanCreateBudgetTransaction(
+        string $user1Token,
+        int    $createdBudgetId,
+        int    $budgetTransactionAmount,
+        string $budgetTransactionImpactDate
+    ): array {
+        $budgetTransactionData = [
+            "budget" => "/api/budgets/" . $createdBudgetId,
+            "transaction" => [
+                "amount" => $budgetTransactionAmount
+            ],
+            "impactDate" => $budgetTransactionImpactDate
+        ];
+
         $budgetTransactionRequest = $this->requestWithJwt(
             method: "POST",
             url: "/api/budget_transactions",
@@ -201,8 +194,11 @@ class BudgetManagementITest extends AbstractApiTestCase
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function checkThatWeCanUpdateBudgetAndRetrieveUpdatedData(array $budgetData, int $createdBudgetId, string $user1Token): void
-    {
+    public function checkThatWeCanUpdateBudgetAndRetrieveUpdatedData(
+        array  $budgetData,
+        int    $createdBudgetId,
+        string $user1Token
+    ): void {
         $budgetData["name"] = "budget-edited-name";
         $updateRequest = $this->requestWithJwt(
             method: "PUT",
@@ -224,6 +220,7 @@ class BudgetManagementITest extends AbstractApiTestCase
     /**
      * @param int $createdBudgetId
      * @param string $user1Token
+     * @return mixed
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
@@ -266,5 +263,43 @@ class BudgetManagementITest extends AbstractApiTestCase
         //then
         $this->assertResponseStatusCodeSame(201);
         return $createdBudgetId;
+    }
+
+    /**
+     * @param $id
+     * @param string $user1Token
+     * @param int $budgetTransactionUpdatedAmount
+     * @param string $budgetTransactionUpdatedImpactDate
+     * @return void
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function checkWeCanUpdateBudgetTransactionImpactDateAndAmount(
+        int $id,
+        string $user1Token,
+        int $budgetTransactionUpdatedAmount,
+        string $budgetTransactionUpdatedImpactDate
+    ): void {
+        $requestBTUpdate = $this->requestWithJwt(
+            "PUT",
+            "/api/budget_transactions/{$id}",
+            $user1Token,
+            [
+                "transactionAmount" => $budgetTransactionUpdatedAmount,
+                "impactDate" => $budgetTransactionUpdatedImpactDate
+            ]
+        );
+
+        $updatedTransactionData = $requestBTUpdate->toArray();
+
+        $oldBudgetTransactionImpactDate = date_create_immutable($budgetTransactionUpdatedImpactDate);
+        $updatedBudgetTransactionImpactDate = date_create_immutable($updatedTransactionData["impactDate"]);
+
+        $this->assertEquals($oldBudgetTransactionImpactDate, $updatedBudgetTransactionImpactDate);
+        $this->assertEquals($budgetTransactionUpdatedAmount, $updatedTransactionData["transaction"]["amount"]);
+        $this->assertResponseStatusCodeSame(200);
     }
 }
