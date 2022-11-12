@@ -6,7 +6,9 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -19,6 +21,7 @@ abstract class AbstractApiTestCase extends ApiTestCase
     protected Client $clientWithToken;
     protected UserPasswordHasherInterface $hasher;
     protected EntityManagerInterface $entityManager;
+    protected SerializerInterface $serializer;
     protected string $token;
 
     /**
@@ -99,6 +102,9 @@ abstract class AbstractApiTestCase extends ApiTestCase
         return "null";
     }
 
+    /**
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -123,6 +129,10 @@ abstract class AbstractApiTestCase extends ApiTestCase
         /** @var EntityManagerInterface $em */
         $em = $container->get('doctrine.orm.entity_manager');
         $this->entityManager = $em;
+        //get serializer
+        /** @var SerializerInterface $serializer */
+        $serializer = $container->get('serializer');
+        $this->serializer = $serializer;
 
         //prepare database connection for rollback
         $this->entityManager->beginTransaction();
