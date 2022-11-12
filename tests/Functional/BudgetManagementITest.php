@@ -2,6 +2,8 @@
 
 namespace Tests\Functional;
 
+use App\Entity\Budget;
+use App\Entity\BudgetTransaction;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -44,7 +46,7 @@ class BudgetManagementITest extends AbstractApiTestCase
          * When we request to create a budget
          * with a valid user token
          */
-        $createdBudgetId = $this->checkValidUserCanCreateBudget($user1Token, $budgetData);
+        $createdBudget = $this->checkValidUserCanCreateBudget($user1Token, $budgetData);
 
 
         /**
@@ -52,7 +54,7 @@ class BudgetManagementITest extends AbstractApiTestCase
          * with the token of the creator
          * and with the id of the budget
          */
-        $this->checkWeCanRetrieveCreatedBudgetWithId($createdBudgetId, $user1Token);
+        $this->checkWeCanRetrieveCreatedBudgetWithId($createdBudget, $user1Token);
 
 
         /**
@@ -61,14 +63,14 @@ class BudgetManagementITest extends AbstractApiTestCase
          * with PUT method
          * and putting all budget in json
          */
-        $this->checkThatWeCanUpdateBudgetAndRetrieveUpdatedData($budgetData, $createdBudgetId, $user1Token);
+        $this->checkThatWeCanUpdateBudgetAndRetrieveUpdatedData($budgetData, $createdBudget, $user1Token);
 
         /**
          * When we request BudgetTransaction creation
          */
-        $createdBudgetTransactionData = $this->checkWeCanCreateBudgetTransaction(
+        $createdBudgetTransaction = $this->checkWeCanCreateBudgetTransaction(
             $user1Token,
-            $createdBudgetId,
+            $createdBudget,
             $budgetTransactionAmount,
             $budgetTransactionImpactDate
         );
@@ -77,7 +79,7 @@ class BudgetManagementITest extends AbstractApiTestCase
          * When we request BudgetTransaction update
          */
         $this->checkWeCanUpdateBudgetTransactionImpactDateAndAmount(
-            $createdBudgetTransactionData['id'],
+            $createdBudgetTransaction,
             $user1Token,
             $budgetTransactionUpdatedAmount,
             $budgetTransactionUpdatedImpactDate
@@ -91,7 +93,7 @@ class BudgetManagementITest extends AbstractApiTestCase
         /**
          * When request to delete the budget
          */
-        $this->checkThatBudgetCanBeDelete($createdBudgetId, $user1Token);
+        $this->checkThatBudgetCanBeDelete($createdBudget, $user1Token);
     }
 
     /**
@@ -107,13 +109,16 @@ class BudgetManagementITest extends AbstractApiTestCase
     }
 
     /**
-     * @param int $createdBudgetId
+     * @param Budget $createdBudget
      * @param string $user1Token
      * @return void
      * @throws TransportExceptionInterface
      */
-    public function checkThatBudgetCanBeDelete(int $createdBudgetId, string $user1Token): void
+    public function checkThatBudgetCanBeDelete(Budget $createdBudget, string $user1Token): void
     {
+        /** @var int $createdBudgetId */
+        $createdBudgetId = $createdBudget->getId();
+
         $this->requestWithJwt(
             "DELETE",
             "/api/budgets/$createdBudgetId",
@@ -132,27 +137,24 @@ class BudgetManagementITest extends AbstractApiTestCase
 
     /**
      * @param string $user1Token
-     * @param int $createdBudgetId
+     * @param Budget $createdBudget
      * @param int $budgetTransactionAmount
      * @param string $budgetTransactionImpactDate
-     * @return array{
-     *          "id" : int,
-     *          "budget" : string,
-     *          "transaction" : array<string, string|int>,
-     *          "impactDate" : string
-     * }
+     * @return BudgetTransaction
      * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
     public function checkWeCanCreateBudgetTransaction(
         string $user1Token,
-        int    $createdBudgetId,
+        Budget    $createdBudget,
         int    $budgetTransactionAmount,
         string $budgetTransactionImpactDate
-    ): array {
+    ): BudgetTransaction {
+        /** @var int $createdBudgetId */
+        $createdBudgetId = $createdBudget->getId();
+
         $budgetTransactionData = [
             "budget" => "/api/budgets/" . $createdBudgetId,
             "transaction" => [
@@ -168,24 +170,18 @@ class BudgetManagementITest extends AbstractApiTestCase
             json: $budgetTransactionData
         );
 
-        /** @var array{
-         *          "id" : int,
-         *          "budget" : string,
-         *          "transaction" : array<string, string|int>,
-         *          "impactDate" : string
-         * } $budgetTransactionData
-         */
-        $budgetTransactionData = $budgetTransactionRequest->toArray();
-
         //Then
         $this->assertResponseStatusCodeSame(201);
 
-        return $budgetTransactionData;
+        /** @var BudgetTransaction $budgetTransaction**/
+        $budgetTransaction = $this->serializer->deserialize($budgetTransactionRequest->getContent(), BudgetTransaction::class, 'json');
+
+        return $budgetTransaction;
     }
 
     /**
      * @param array<string, mixed> $budgetData
-     * @param int $createdBudgetId
+     * @param Budget $createdBudget
      * @param string $user1Token
      * @return void
      * @throws ClientExceptionInterface
@@ -196,10 +192,13 @@ class BudgetManagementITest extends AbstractApiTestCase
      */
     public function checkThatWeCanUpdateBudgetAndRetrieveUpdatedData(
         array  $budgetData,
-        int    $createdBudgetId,
+        Budget  $createdBudget,
         string $user1Token
     ): void {
+        /** @var int $createdBudgetId */
+        $createdBudgetId = $createdBudget->getId();
         $budgetData["name"] = "budget-edited-name";
+
         $updateRequest = $this->requestWithJwt(
             method: "PUT",
             url: "/api/budgets/$createdBudgetId",
@@ -209,7 +208,6 @@ class BudgetManagementITest extends AbstractApiTestCase
 
         $updateResponse = $updateRequest->toArray();
         $updatedName = $updateResponse["name"];
-        $updatedBudgetId = $updateResponse["id"];
 
         //Then expect only name change
         $this->assertResponseStatusCodeSame(200);
@@ -218,37 +216,38 @@ class BudgetManagementITest extends AbstractApiTestCase
     }
 
     /**
-     * @param int $createdBudgetId
+     * @param Budget $createdBudget
      * @param string $user1Token
-     * @return mixed
+     * @return void
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function checkWeCanRetrieveCreatedBudgetWithId(int $createdBudgetId, string $user1Token): mixed
+    public function checkWeCanRetrieveCreatedBudgetWithId(Budget $createdBudget, string $user1Token): void
     {
+        /** @var int $createdBudgetId */
+        $createdBudgetId = $createdBudget->getId();
+
         $request = $this->getTheCreatedBudget($createdBudgetId, $user1Token);
         $requestedBudgetId = $request->toArray()["id"];
 
         //Then
         $this->assertResponseStatusCodeSame(200);
         $this->assertEquals($createdBudgetId, $requestedBudgetId);
-        return $requestedBudgetId;
     }
 
     /**
      * @param string $user1Token
      * @param array<string, mixed> $budgetData
-     * @return int
+     * @return Budget
      * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function checkValidUserCanCreateBudget(string $user1Token, array $budgetData): int
+    public function checkValidUserCanCreateBudget(string $user1Token, array $budgetData): Budget
     {
         $postResponse = $this->requestWithJwt(
             "POST",
@@ -257,16 +256,21 @@ class BudgetManagementITest extends AbstractApiTestCase
             $budgetData
         );
 
-        /** @var int $createdBudgetId */
-        $createdBudgetId = $postResponse->toArray()["id"];
+        /** @var Budget $createdBudget */
+        $createdBudget= $this->serializer->deserialize(
+            $postResponse->getContent(),
+            Budget::class,
+            'json',
+            ["groups"=>"budget:read"]
+        );
 
         //then
         $this->assertResponseStatusCodeSame(201);
-        return $createdBudgetId;
+        return $createdBudget;
     }
 
     /**
-     * @param $id
+     * @param BudgetTransaction $createdBudgetTransaction
      * @param string $user1Token
      * @param int $budgetTransactionUpdatedAmount
      * @param string $budgetTransactionUpdatedImpactDate
@@ -278,14 +282,14 @@ class BudgetManagementITest extends AbstractApiTestCase
      * @throws TransportExceptionInterface
      */
     public function checkWeCanUpdateBudgetTransactionImpactDateAndAmount(
-        int $id,
+        BudgetTransaction $createdBudgetTransaction,
         string $user1Token,
         int $budgetTransactionUpdatedAmount,
         string $budgetTransactionUpdatedImpactDate
     ): void {
         $requestBTUpdate = $this->requestWithJwt(
             "PUT",
-            "/api/budget_transactions/{$id}",
+            "/api/budget_transactions/{$createdBudgetTransaction->getId()}",
             $user1Token,
             [
                 "transactionAmount" => $budgetTransactionUpdatedAmount,

@@ -26,26 +26,32 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: BudgetRepository::class)]
 class Budget
 {
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
-    private ?int $id = null;
     /** @var Collection<int, BudgetTransaction> */
     #[ORM\OneToMany(mappedBy: 'budget', targetEntity: BudgetTransaction::class, orphanRemoval: true)]
     private Collection $budgetTransaction;
 
     public function __construct(
         #[ORM\Column(type: 'string', length: 255)]
-        #[Groups(["user-info"])]
+        #[Groups(["budget:read", "user-info"])]
         private string             $name,
         #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'budget')]
         #[ORM\JoinColumn(nullable: false)]
+        #[Groups(["budget:read"])]
         private User               $creator,
         #[ORM\Column(type: 'date_immutable')]
-        #[Groups(["user-info"])]
+        #[Groups(["budget:read", "user-info"])]
         private DateTimeImmutable  $startDate,
         #[ORM\Column(type: 'date_immutable', nullable: true)]
+        #[Groups(["budget:read"])]
         private ?DateTimeImmutable $endDate = null,
         #[ORM\Column(type: 'integer')]
-        private int                $startAmount = 0
+        #[Groups(["budget:read"])]
+        private int                $startAmount = 0,
+        #[ORM\Id,
+        ORM\GeneratedValue,
+        ORM\Column(type: 'integer')]
+        #[Groups(["budget:read"])]
+        private ?int               $id = null
     ) {
         $this->budgetTransaction = new ArrayCollection();
     }

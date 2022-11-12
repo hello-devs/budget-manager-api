@@ -37,10 +37,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: BudgetTransactionRepository::class)]
 class BudgetTransaction
 {
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
-    #[Groups(["budget-transaction:read", "budget-transaction:write"])]
-    private ?int $id = null;
-
     public function __construct(
         #[ORM\ManyToOne(targetEntity: Budget::class, inversedBy: 'budgetTransaction')]
         #[ORM\JoinColumn(nullable: false)]
@@ -61,7 +57,12 @@ class BudgetTransaction
         private bool                 $isNegative = false,
         #[ORM\Column(type: 'boolean')]
         #[Groups(["budget-transaction:read", "budget-transaction:write"])]
-        private bool                 $isRecurrent = false
+        private bool                 $isRecurrent = false,
+        #[ORM\Id,
+        ORM\GeneratedValue,
+        ORM\Column(type: 'integer')]
+        #[Groups(["budget-transaction:read", "budget-transaction:write"])]
+        private ?int                 $id = null
     ) {
     }
 
