@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
@@ -29,7 +30,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("' . BudgetTransactionVoter::UPDATE . '", object)',
             input: BudgetTransactionUpdateDto::class,
             processor: BudgetTransactionUpdateProcessor::class
-        )
+        ),
+        new Delete(security: 'is_granted("' . BudgetTransactionVoter::DELETE . '", object)')
     ],
     normalizationContext: ['groups' => 'budget-transaction:read'],
     denormalizationContext: ['groups' => 'budget-transaction:write']
@@ -43,7 +45,7 @@ class BudgetTransaction
         #[Groups(["budget-transaction:read", "budget-transaction:write"])]
         #[Assert\NotBlank]
         private readonly Budget      $budget,
-        #[ORM\ManyToOne(targetEntity: Transaction::class, cascade: ["persist"], inversedBy: 'budgetTransaction')]
+        #[ORM\ManyToOne(targetEntity: Transaction::class, cascade: ["persist","remove"], inversedBy: 'budgetTransaction')]
         #[ORM\JoinColumn(nullable: false)]
         #[Groups(["budget-transaction:read", "budget-transaction:write"])]
         #[Assert\NotBlank]

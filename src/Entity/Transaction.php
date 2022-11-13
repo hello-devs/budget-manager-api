@@ -12,10 +12,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
-    #[Groups(["budget-transaction:read", "budget-transaction:write"])]
-    private ?int $id = null;
-
     /** @var Collection<int, BudgetTransaction> */
     #[ORM\OneToMany(mappedBy: 'transaction', targetEntity: BudgetTransaction::class, orphanRemoval: true)]
     private Collection $budgetTransaction;
@@ -27,7 +23,12 @@ class Transaction
         private User|null $creator = null,
         #[ORM\Column(type: 'integer')]
         #[Groups(["budget-transaction:read", "budget-transaction:write"])]
-        private int       $amount = 0
+        private int       $amount = 0,
+        #[ORM\Id,
+        ORM\GeneratedValue,
+        ORM\Column(type: 'integer')]
+        #[Groups(["budget-transaction:read", "budget-transaction:write"])]
+        private ?int $id = null
     ) {
         $this->budgetTransaction = new ArrayCollection();
     }
