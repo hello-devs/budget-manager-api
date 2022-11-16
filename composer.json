@@ -1,6 +1,6 @@
 {
     "name": "hello-devs/budget-manager-api",
-    "description": "A simple api to manage monthly budgets",
+    "description": "An API to create and manage your budget adding or subtract transactions.",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
