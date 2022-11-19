@@ -5,6 +5,7 @@ namespace Tests\Functional;
 use App\Entity\Budget;
 use App\Entity\BudgetTransaction;
 use App\Entity\Transaction;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -27,20 +28,36 @@ class BudgetManagementITest extends AbstractApiTestCase
     public function a_user_can_create_a_budget_then_this_user_can_manage_his_budget(): void
     {
         //Given
+        $adminEmail = "admin@email.dev";
+        $adminPassword = "admin-pwd";
+        $this->createUserInDatabase($adminEmail, $adminPassword, ["ROLE_ADMIN"]);
+        $adminToken =  $this->getToken("/get_token", ["email" => $adminEmail, "password" => $adminPassword]);
+
         $user1Email = "user1@email.com";
         $user1Password = "user1-pwd";
-        $user1Id = $this->createUserInDatabase($user1Email, $user1Password);
-        $user1Token = $this->getToken("/get_token", ["email" => $user1Email, "password" => $user1Password]);
-        $budgetData = [
-            "name" => "budget-name",
-            "startDate" => date("Y-m-01"),
-            "startAmount" => 10_000,
-            "creator" => "/api/users/$user1Id"
-        ];
         $budgetTransactionAmount = 500;
         $budgetTransactionImpactDate = "20220501";
         $budgetTransactionUpdatedImpactDate = "20220502";
         $budgetTransactionUpdatedAmount = 100;
+
+        /**
+         * When we request user creation
+         * with admin token
+         */
+        $user = $this->checkWeCanCreateUserWithAdminRole($adminToken, $user1Email, $user1Password);
+
+
+        /** @var int $userId */
+        $userId = $user->getId();
+        $user1Token = $this->getToken("/get_token", ["email" => $user1Email, "password" => $user1Password]);
+
+        $budgetData = [
+            "name" => "budget-name",
+            "startDate" => date("Y-m-01"),
+            "startAmount" => 10_000,
+            "creator" => "/api/users/$userId}"
+        ];
+
 
 
         /**
@@ -96,6 +113,36 @@ class BudgetManagementITest extends AbstractApiTestCase
          * When request to delete the budget
          */
         $this->checkThatBudgetCanBeDelete($createdBudget, $user1Token);
+    }
+
+    /**
+     * @param string $adminToken
+     * @param string $user1Email
+     * @param string $user1Password
+     * @return User
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function checkWeCanCreateUserWithAdminRole(string $adminToken, string $user1Email, string $user1Password): User
+    {
+        $userCreationRequest = $this->requestWithJwt(
+            "POST",
+            "/api/users",
+            $adminToken,
+            [
+                "email" => $user1Email,
+                "password" => $user1Password
+            ]
+        );
+
+        /** @var User $user */
+        $user = $this->serializer->deserialize($userCreationRequest->getContent(), User::class, "json");
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertInstanceOf(User::class, $user);
+        return $user;
     }
 
     /**
