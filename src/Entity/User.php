@@ -39,11 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
-    #[Groups(["user-info", "read"])]
-    private ?int $id = null;
+
     #[Assert\NotBlank]
     #[ORM\Column(type: "string", length: 180, unique: true)]
     #[Groups(["user-info", "read", "write"])]
@@ -67,7 +63,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["read", "write"])]
     private Collection $transaction;
 
-    public function __construct()
+    public function __construct(
+        #[ORM\Id]
+        #[ORM\GeneratedValue]
+        #[ORM\Column(type: "integer")]
+        #[Groups(["user-info", "read"])]
+        private ?int $id = null
+    )
     {
         $this->budget = new ArrayCollection();
         $this->transaction = new ArrayCollection();
