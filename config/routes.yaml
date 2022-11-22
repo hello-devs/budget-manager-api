@@ -4,3 +4,7 @@
 authentication_token:
   path: /get_token
   methods: ['POST']
+
+api_refresh_token:
+  path: /refresh_token
+  methods: [ 'POST' ]

@@ -20,6 +20,7 @@ cache-clear: ## Clear cache
 	$(SYMFONY_CONSOLE) cache:clear
 
 ## —— ✅ Test —————————————————————————————————————————————————————————————————
+
 .PHONY: tests
 tests: ## Run all tests
 	$(MAKE) database-init-test
@@ -80,14 +81,14 @@ database-init: ## Init database
 	$(MAKE) database-migrate
 	$(MAKE) database-fixtures-load
 
-database-drop: ## Create database
-	$(SYMFONY_CONSOLE) d:d:d --force --if-exists
-
 database-create: ## Create database
 	$(SYMFONY_CONSOLE) d:d:c --if-not-exists
 
-database-remove: ## Drop database
+database-drop: ## Create database
 	$(SYMFONY_CONSOLE) d:d:d --force --if-exists
+
+database-remove: ## Alias : database-drop
+	$(MAKE) database-drop
 
 database-migration: ## Make migration
 	$(SYMFONY_CONSOLE) make:migration
