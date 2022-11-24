@@ -31,6 +31,51 @@ class ExceptionListener
         $event->setResponse($response);
     }
 
+
+    /**
+     * @param Throwable $exception
+     * @param string $logErrorId
+     * @return array{JsonResponse, bool}
+     */
+    public function createResponseAccordingToExceptionType(Throwable $exception, string $logErrorId): array
+    {
+        $responseData = [
+            "description" => $exception->getMessage(),
+            "LOG_ERROR_ID" => $logErrorId
+        ];
+
+        $response = new JsonResponse();
+        $isSymfonyHttpException = false;
+
+        if ($exception instanceof HttpExceptionInterface) {
+            $isSymfonyHttpException = true;
+
+            $response->setStatusCode($exception->getStatusCode());
+            $responseData["title"] = "HTTP REQUEST ERROR";
+            $responseData["code"] = $exception->getStatusCode();
+            $response->setData($responseData);
+        } elseif ($exception instanceof UnexpectedValueException) {
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $responseData["title"] = "UNEXPECTED VALUE ERROR";
+
+            if ($exception->getPrevious() instanceof NotNormalizableValueException
+                || $exception->getPrevious() instanceof ItemNotFoundException) {
+                $responseData["message"] = $exception->getPrevious()->getMessage();
+            }
+            $response->setData($responseData);
+        } else {
+            $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            $responseData["title"] = "SERVER ERROR";
+            $responseData["description"] = "The server encountered an error while processing your response";
+            $responseData["message"] = "Please contact administrator with your log error Id to help solve it";
+        }
+
+        $response->setData($responseData);
+
+        return array($response, $isSymfonyHttpException);
+    }
+
+
     /**
      * @param string $logErrorId
      * @param Throwable $exception
@@ -50,46 +95,5 @@ class ExceptionListener
         if (!$isSymfonyHttpException) {
             $this->logger->error($logData);
         }
-    }
-
-    /**
-     * @param Throwable $exception
-     * @param string $logErrorId
-     * @return array{JsonResponse, bool}
-     */
-    public function createResponseAccordingToExceptionType(Throwable $exception, string $logErrorId): array
-    {
-        $response = new JsonResponse([
-            "title" => "Request error",
-            "description" => $exception->getMessage(),
-            "LOG_ERROR_ID" => $logErrorId
-        ]);
-        $isSymfonyHttpException = false;
-
-        if ($exception instanceof HttpExceptionInterface) {
-            $isSymfonyHttpException = true;
-            $response->setStatusCode($exception->getStatusCode());
-        } elseif ($exception instanceof UnexpectedValueException) {
-            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $responseData = [
-                "title" => "Unexpected value error.",
-                "description" => $exception->getMessage(),
-            ];
-
-            if ($exception->getPrevious() instanceof NotNormalizableValueException
-                || $exception->getPrevious() instanceof ItemNotFoundException
-            ) {
-                $responseData["message"] = $exception->getPrevious()->getMessage();
-            }
-            $response->setData($responseData);
-        } else {
-            $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
-            $response->setData([
-                "title" => "SERVER ERROR",
-                "description" => "The server encountered an error while processing your response",
-                "message" => "Please contact administrator with your log error Id to help solve it",
-            ]);
-        }
-        return array($response, $isSymfonyHttpException);
     }
 }
