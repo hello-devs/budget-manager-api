@@ -1,7 +1,7 @@
 api_platform:
   title: "BMA: Budget Manager API"
   description: "An API to create and manage your budget adding or subtract transactions."
-  version: 0.0.1
+  version: 0.9.0
 
   mapping:
     paths: ['%kernel.project_dir%/src/Entity']
