@@ -55,7 +55,7 @@ class BudgetManagementITest extends AbstractApiTestCase
             "name" => "budget-name",
             "startDate" => date("Y-m-01"),
             "startAmount" => 10_000,
-            "creator" => "/api/users/$userId}"
+            "creator" => "/api/users/$userId"
         ];
 
 

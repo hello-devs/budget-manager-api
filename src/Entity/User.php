@@ -42,9 +42,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank]
     #[ORM\Column(type: "string", length: 180, unique: true)]
     #[Groups(["user-info", "read", "write"])]
+    #[Assert\Email()]
     private string $email;
     #[SerializedName("password")]
     #[Groups(["write"])]
+    #[Assert\Length(min: 6)]
     private ?string $plainPassword = null;
     #[Assert\NotBlank]
     #[ORM\Column(type: "string")]
