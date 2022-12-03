@@ -40,6 +40,7 @@
         "symfony/yaml": "6.1.*"
     },
     "require-dev": {
+        "hautelook/alice-bundle": "^2.11",
         "pestphp/pest": "^1.21",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.1",
