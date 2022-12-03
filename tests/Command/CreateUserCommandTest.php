@@ -77,5 +77,4 @@ class CreateUserCommandTest extends KernelTestCase
         $commandTester->assertCommandIsSuccessful();
         $this->assertStringContainsString("Operation have been correctly cancelled", $output);
     }
-
 }

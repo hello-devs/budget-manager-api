@@ -34,83 +34,33 @@ class CreateUserCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln([
-            'USER CREATOR',
-            '============',
-            '',
-            'You are about to create a user',
-        ]);
-
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
+        $output->writeln(['USER CREATOR', '============', '', 'You are about to create a user',]);
 
-        //get email
-        /** @var string $email */
-        $email = $input->getOption("email") ?? $helper->ask($input, $output, new Question("Enter email: "));
-
-        //get password
-        $question = new Question("Enter password: ");
-        $question->setHidden(true);
-        $question->setHiddenFallback(false);
-        /** @var string $plainPassword */
-        $plainPassword = $input->getOption("password") ?? $helper->ask($input, $output, $question);
-
-        //confirm password
-        $question = new Question("Confirm password: ");
-        $question->setHidden(true);
-        $question->setHiddenFallback(false);
-        /** @var string $confirmPassword */
-        $confirmPassword = $helper->ask($input, $output, $question);
-
-        //get role
-        /** @var string $role */
-        $role = $input->getOption("role") ?? "ROLE_USER";
+        //Get user Data
+        list($email, $plainPassword, $confirmPassword, $role) = $this->getUserData($input, $helper, $output);
 
         $output->writeln(["_____________", "", "Verification:"]);
 
         //Set user data
-        $user = new User();
-        $user->setPlainPassword($plainPassword);
-        $hashedPwd = $this->hasher->hashPassword($user, $plainPassword);
+        $user = $this->setupUserWithData($plainPassword, $email, $role);
 
-        $user
-            ->setEmail($email)
-            ->setPassword($hashedPwd)
-            ->setRoles([$role]);
+        //Check inputs validity
+        $areInputsValid = $this->checkInputsValidity($confirmPassword, $plainPassword, $user, $output);
 
-        //Check input validity
-        /** @var ConstraintViolationList $violations */
-        $violations = $this->validator->validate($confirmPassword, [
-            new IdenticalTo($plainPassword, null, "Password and confirm password inputs should be identical")
-        ]);
-        $violations->addAll($this->validator->validate($user));
-
-        if (0 !== count($violations)) {
-            foreach ($violations as $violation) {
-                $output->writeln([$violation->getInvalidValue(), "<error>" . $violation->getMessage() . "</error>", ""]);
-            }
-
-            $output->writeln([
-                "<info>No user have been created. You can try again with correct inputs.</info>",
-                ""
-            ]);
-
+        //Exit with invalid status if inputs are invalid.
+        if (!$areInputsValid) {
             return Command::INVALID;
         }
-        $output->writeln([
-            ". . . . . . .",
-            "",
-            "Verified!",
-            "_____________"
-        ]);
 
-        //confirm creation
-        $output->writeln("Please confirm creation of user \"$email\" with role: $role");
+        $output->writeln([". . . . . . .", "", "Verified!", "_____________"]);
 
-        $question = new ConfirmationQuestion('Continue with this action?', false);
-        if (!$helper->ask($input, $output, $question)) {
-            $output->writeln("<info>Operation have been correctly cancelled</info>");
+        //Ask confirmation before user creation
+        $confirmation = $this->askConfirmationBeforeUserCreation($output, $email, $role, $helper, $input);
+
+        if (!$confirmation) {
             return Command::SUCCESS;
         }
 
@@ -118,7 +68,7 @@ class CreateUserCommand extends Command
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $output->writeln(["","<info>User have been created!</info>", ""]);
+        $output->writeln(["", "<info>User have been created!</info>", ""]);
 
         return Command::SUCCESS;
     }
@@ -130,5 +80,107 @@ class CreateUserCommand extends Command
             ->addOption('email', 'u', InputOption::VALUE_OPTIONAL, 'User email')
             ->addOption('password', 'p', InputOption::VALUE_OPTIONAL, 'User password')
             ->addOption("role", "r", InputOption::VALUE_OPTIONAL, "User role");
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param string $email
+     * @param string $role
+     * @param QuestionHelper $helper
+     * @param InputInterface $input
+     * @return bool
+     */
+    public function askConfirmationBeforeUserCreation(OutputInterface $output, string $email, string $role, QuestionHelper $helper, InputInterface $input): bool
+    {
+        $output->writeln("Please confirm creation of user \"$email\" with role: $role");
+
+        $confirmation = true;
+        $question3 = new ConfirmationQuestion('Continue with this action?', false);
+        if (!$helper->ask($input, $output, $question3)) {
+            $output->writeln("<info>Operation have been correctly cancelled</info>");
+            $confirmation = false;
+        }
+        return $confirmation;
+    }
+
+    /**
+     * @param string $confirmPassword
+     * @param string $plainPassword
+     * @param User $user
+     * @param OutputInterface $output
+     * @return bool
+     */
+    public function checkInputsValidity(string $confirmPassword, string $plainPassword, User $user, OutputInterface $output): bool
+    {
+        /** @var ConstraintViolationList $violations */
+        $violations = $this->validator->validate($confirmPassword, [
+            new IdenticalTo($plainPassword, null, "Password and confirm password inputs should be identical")
+        ]);
+        $violations->addAll($this->validator->validate($user));
+
+        $areInputsValid = 0 === count($violations);
+
+        if (!$areInputsValid) {
+            foreach ($violations as $violation) {
+                $output->writeln([$violation->getInvalidValue(), "<error>" . $violation->getMessage() . "</error>", ""]);
+            }
+
+            $output->writeln([
+                "<info>No user have been created. You can try again with correct inputs.</info>",
+                ""
+            ]);
+        }
+        return $areInputsValid;
+    }
+
+    /**
+     * @param string $plainPassword
+     * @param string $email
+     * @param string $role
+     * @return User
+     */
+    public function setupUserWithData(string $plainPassword, string $email, string $role): User
+    {
+        $user = new User();
+        $user->setPlainPassword($plainPassword);
+        $hashedPwd = $this->hasher->hashPassword($user, $plainPassword);
+
+        $user
+            ->setEmail($email)
+            ->setPassword($hashedPwd)
+            ->setRoles([$role]);
+        return $user;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param QuestionHelper $helper
+     * @param OutputInterface $output
+     * @return string[]
+     */
+    public function getUserData(InputInterface $input, QuestionHelper $helper, OutputInterface $output): array
+    {
+        //getEmail
+        /** @var string $email */
+        $email = $input->getOption("email") ?? $helper->ask($input, $output, new Question("Enter email: "));
+
+        //get password
+        $question1 = new Question("Enter password: ");
+        $question1->setHidden(true);
+        $question1->setHiddenFallback(false);
+        /** @var string $plainPassword */
+        $plainPassword = $input->getOption("password") ?? $helper->ask($input, $output, $question1);
+
+        //confirm password
+        $question2 = new Question("Confirm password: ");
+        $question2->setHidden(true);
+        $question2->setHiddenFallback(false);
+        /** @var string $confirmPassword */
+        $confirmPassword = $helper->ask($input, $output, $question2);
+
+        //get role
+        /** @var string $role */
+        $role = $input->getOption("role") ?? "ROLE_USER";
+        return array($email, $plainPassword, $confirmPassword, $role);
     }
 }
