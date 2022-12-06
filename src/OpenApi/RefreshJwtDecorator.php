@@ -35,8 +35,8 @@ final class RefreshJwtDecorator implements OpenApiFactoryInterface
         $pathItem = new Model\PathItem(
             ref: 'JWT Token Refresh',
             post: new Model\Operation(
-                operationId: 'refreshTokenItem',
-                tags: ['Tokens Refresh'],
+                operationId: 'refreshTokensItem',
+                tags: ['Auth'],
                 responses: [
                     '200' => [
                         'description' => 'Refresh expired Token and get new Refresh Token',
